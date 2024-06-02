@@ -11,9 +11,7 @@ bl_info = {
 }
 
 
-import bpy #type: ignore
-from .operators import FH_result_draw
-from .UI import ui_side_panel
+import bpy
 
 if "bpy" in locals():
 	# bring in reload library
@@ -27,7 +25,7 @@ def menu_func(self, context):
 
 # Registration
 
-blender_classes = [FH_result_draw.FH_result_draw_OP, ui_side_panel.FH_sidebar]
+blender_classes = []
 
 
 
