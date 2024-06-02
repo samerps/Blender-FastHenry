@@ -11,7 +11,8 @@ bl_info = {
 }
 
 
-import bpy
+import bpy #type: ignore
+from .operators import FH_result_draw
 
 if "bpy" in locals():
 	# bring in reload library
@@ -25,7 +26,7 @@ def menu_func(self, context):
 
 # Registration
 
-blender_classes = []
+blender_classes = [FH_result_draw.FH_result_draw_OP]
 
 
 
@@ -39,11 +40,13 @@ blender_classes = []
 
 
 def register():
-    pass
+    for blender_class in blender_classes:
+        bpy.utils.register_class(blender_class)
 
 
 def unregister():
-    pass
+    for blender_class in blender_classes:
+        bpy.utils.unregister_class(blender_class)
 
 
 if __name__ == "__main__":
