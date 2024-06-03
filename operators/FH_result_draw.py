@@ -1,5 +1,6 @@
 import bpy
 import gpu
+import blf
 from gpu_extras.batch import batch_for_shader
 
 def draw_callback_px(self, context):
@@ -10,17 +11,17 @@ def draw_callback_px(self, context):
     blf.position(font_id, 15, 30, 0)
     blf.size(font_id, 20.0)
     #blf.draw(font_id, "FastHenry Operator " + str(len(self.mouse_path)))
-    blf.draw(font_id, "FastHenry Operator " + self.FH_result)
+    blf.draw(font_id, "FastHenry Operator " + str(self.FH_result))
 
 
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
 
-class FH_result_draw_OP(bpy.types.Operator):
+class BFH_OP_result_draw(bpy.types.Operator):
     """Draw Fast Henry result"""
-    bl_idname = "view3d.modal_draw_operator"
-    bl_label = "Simple Modal View3D Operator"
+    bl_idname = "view3d.bfh_draw_operator"
+    bl_label = "BFH Draw Operator"
 
     def modal(self, context, event):
         context.area.tag_redraw()
@@ -53,16 +54,16 @@ class FH_result_draw_OP(bpy.types.Operator):
         
 
 def menu_func(self, context):
-    self.layout.operator(FH_result_draw_OP.bl_idname, text="Modal Draw Operator")
+    self.layout.operator(BFH_OP_result_draw.bl_idname, text="Modal Draw Operator2")
 
 
 # Register and add to the "view" menu (required to also use F3 search "Modal Draw Operator" for quick access).
 def register():
-    bpy.utils.register_class(FH_result_draw_OP)
+    bpy.utils.register_class(BFH_OP_result_draw)
     #bpy.types.VIEW3D_MT_view.append(menu_func)
 
 def unregister():
-    bpy.utils.unregister_class(FH_result_draw_OP)
+    bpy.utils.unregister_class(BFH_OP_result_draw)
     #bpy.types.VIEW3D_MT_view.remove(menu_func)
 
 

@@ -28,7 +28,7 @@ def menu_func(self, context):
 
 # Registration
 
-blender_classes = [FH_result_draw.FH_result_draw_OP, ui_side_panel.FH_sidebar]
+blender_classes = [FH_result_draw.BFH_OP_result_draw, ui_side_panel.FH_sidebar]
 
 
 
