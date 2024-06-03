@@ -5,7 +5,7 @@ class FH_sidebar(bpy.types.Panel):
     bl_label = "Blender Fast Henry"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "Blender FH"
+    bl_category = "BFH"
 
     def draw(self, context):
         col = self.layout.column(align=True)

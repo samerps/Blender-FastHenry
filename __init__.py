@@ -2,7 +2,7 @@ bl_info = {
     "name": "BlenderFH",
     "author": "Samer Aldhaher",
     "version": (1, 0),
-    "blender": (4, 00, 0),
+    "blender": (4, 1, 0),
     "location": "View3D > Add > Mesh > New Object",
     "description": "Blender Fast Henry interface",
     "warning": "",
@@ -19,8 +19,7 @@ if "bpy" in locals():
 	# bring in reload library
     from importlib import reload
 	# reload using function
-    reload(FH_result_draw)
-    reload(ui_side_panel)
+    pass
 
 
 def menu_func(self, context):
