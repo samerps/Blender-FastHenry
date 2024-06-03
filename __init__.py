@@ -19,7 +19,8 @@ if "bpy" in locals():
 	# bring in reload library
     from importlib import reload
 	# reload using function
-    pass
+    reload(FH_result_draw)
+    reload(ui_side_panel)
 
 
 def menu_func(self, context):
