@@ -26,6 +26,9 @@ def run_FastField(self, context):
     R = FastHenry2.GetResistance
     L = FastHenry2.getInductance
 
+    my_properties.inductance_result[0][0][0]
+    my_properties.resistance_result[0][0][0]
+
     print(L)
     print("done")
 

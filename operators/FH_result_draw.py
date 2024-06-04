@@ -26,22 +26,21 @@ def init():
 
 def draw_callback_px(self, context):
     
+    my_properties = context.window_manager.BFH_properties
     font_id = 0  # XXX, need to find out how best to get this.
 
     # draw some text
     blf.size(font_id, 25.0)
 
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
-    blf.draw(font_id, "FastHenry Operator " + str(self.FH_result))
+    blf.draw(font_id, "FastHenry Operator " )
 
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-25, 0)
-    blf.draw(font_id, "Resistance " + str(self.FH_result))
+    blf.draw(font_id, "Resistance " + str(my_properties.resistance_result))
 
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-50, 0)
-    blf.draw(font_id, "Inductance " + str(self.FH_result))
+    blf.draw(font_id, "Inductance " + str(my_properties.inductance_result))
     
-
-
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
