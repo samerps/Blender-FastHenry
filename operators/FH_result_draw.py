@@ -1,17 +1,45 @@
-import bpy
-import gpu
-import blf
-from gpu_extras.batch import batch_for_shader
+#JUNE 2024
+#this class used BLF to display a HUD which shows the results   
+
+import bpy #type: ignore
+import gpu #type: ignore
+import blf #type: ignore
+import os
+from gpu_extras.batch import batch_for_shader #type: ignore
+
+
+def init():
+    font_info = {
+    "font_id": 0,
+    "handler": None,}
+
+    # Create a new font object, use external ttf file.
+    font_path = bpy.path.abspath('//Zeyada.ttf')
+    # Store the font indice - to use later.
+    if os.path.exists(font_path):
+        font_info["font_id"] = blf.load(font_path)
+        print("font path exist")
+    else:
+        # Default font.
+        font_info["font_id"] = 0
+    
 
 def draw_callback_px(self, context):
     
     font_id = 0  # XXX, need to find out how best to get this.
 
     # draw some text
-    blf.position(font_id, 15, 30, 0)
-    blf.size(font_id, 20.0)
-    #blf.draw(font_id, "FastHenry Operator " + str(len(self.mouse_path)))
+    blf.size(font_id, 25.0)
+
+    blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
     blf.draw(font_id, "FastHenry Operator " + str(self.FH_result))
+
+    blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-25, 0)
+    blf.draw(font_id, "Resistance " + str(self.FH_result))
+
+    blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-50, 0)
+    blf.draw(font_id, "Inductance " + str(self.FH_result))
+    
 
 
     # restore opengl defaults
@@ -24,6 +52,9 @@ class BFH_OP_result_draw(bpy.types.Operator):
     bl_label = "BFH Draw Operator"
 
     def modal(self, context, event):
+
+        self.mouse_pos =  (event.mouse_x, event.mouse_y)
+
         context.area.tag_redraw()
 
         if event.type == 'LEFTMOUSE':
@@ -40,6 +71,8 @@ class BFH_OP_result_draw(bpy.types.Operator):
         if context.area.type == 'VIEW_3D':
             # the arguments we pass the the callback
             args = (self, context)
+            #initialise draw function
+            init()
             # Add the region OpenGL drawing callback
             # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
