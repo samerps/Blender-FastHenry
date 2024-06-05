@@ -13,6 +13,7 @@ import bpy #type: ignore
 from .operators import FH_result_draw
 from .operators import FH_create_inp
 from .operators import FH_run_FastField
+from .operators import FH_run_all
 from .UI import ui_side_panel
 from .properties import property_group
 
@@ -25,15 +26,8 @@ blender_classes = [FH_result_draw.BFH_OP_result_draw,
                    FH_create_inp.BFH_OP_create_inp,
                    ui_side_panel.BFH_PT_sidebar,
                    property_group.BFH_property_group,
-                   FH_run_FastField.BFH_OP_run_FastHenry]
-
-# This allows you to right click on a button and link to documentation
-#def add_object_manual_map():
-#    url_manual_prefix = "https://docs.blender.org/manual/en/latest/"
-#    url_manual_mapping = (
-#        ("bpy.ops.mesh.add_object", "scene_layout/object/types.html"),
-#    )
-#    return url_manual_prefix, url_manual_mapping
+                   FH_run_FastField.BFH_OP_run_FastHenry,
+                   FH_run_all.BFH_OP_result_draw]
 
 def register():
     for blender_class in blender_classes:

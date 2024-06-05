@@ -10,8 +10,13 @@ def create_inp(self, context):
     fmin = my_properties.fmin
     fmax = my_properties.fmax
     ndec = my_properties.ndec
+    nhinc = my_properties.nhinc
+    nwinc = my_properties.nwinc
+    rh = my_properties.rh
+    rw = my_properties.rw
+
     zdefault = 0
-    sigma = my_properties.conductivity
+    sigma = my_properties.conductivity*1000 #fasthenry sigma units 1/(mm*Ohms)
     units ='mm'
 
     basedir = os.path.dirname(bpy.data.filepath)
@@ -32,8 +37,9 @@ def create_inp(self, context):
     h=0.1 #height
 
     textfile = open(my_properties.INP_file_name + ".inp", "w")
-    textfile.write('.Default' + ' z=' + str(zdefault) + ' sigma=' + str(sigma) + '\n')
-    textfile.write('.Units ' + units +  '\n')
+    textfile.write('Blender Fast Henry Output' + '\n') #fast henry format first line must contain a comment
+    textfile.write('.units ' + units +  '\n')
+    textfile.write('.default' + ' z='+str(zdefault) + ' sigma='+str(sigma) + ' nhinc='+str(nhinc) + ' nwinc='+str(nwinc) + ' rh='+str(rh) + ' rw='+str(rw) + '\n')
 
     for indx, co in enumerate(vertex_coordinates):
         textfile.write('N' + str(indx+1) + ' x=' + str(co.x) + ' y=' + str(co.y) + ' z=' + str(co.z) + '\n' ) 

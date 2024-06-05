@@ -20,17 +20,11 @@ def run_FastField(self, context):
 
     running = FastHenry2.IsRunning
     while FastHenry2.IsRunning:
-        win32api.Sleep(500)
+        win32api.Sleep(100)
 
     #Frequencies = FastHenry2.GetFrequencies()
-    R = FastHenry2.GetResistance
-    L = FastHenry2.getInductance
-
-    my_properties.inductance_result[0][0][0]
-    my_properties.resistance_result[0][0][0]
-
-    print(L)
-    print("done")
+    #R = FastHenry2.GetResistance
+    #L = FastHenry2.getInductance
 
 class BFH_OP_run_FastHenry(bpy.types.Operator):
     """Tooltip"""

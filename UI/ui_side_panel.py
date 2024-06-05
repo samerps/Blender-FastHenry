@@ -26,4 +26,5 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.operator("object.bfh_create_inp", text = "Create INP file")
         col.operator("object.bfh_run_fastfield", text ="Run FastHenry")
         col.operator("view3d.bfh_draw_operator", text ="Display Results")
+        col.operator("object.bfh_run_all", text ="Run All")
        

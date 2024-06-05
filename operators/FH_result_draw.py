@@ -6,6 +6,7 @@ import gpu #type: ignore
 import blf #type: ignore
 import os
 from gpu_extras.batch import batch_for_shader #type: ignore
+from ..functions import read_Zc
 
 
 def init():
@@ -35,11 +36,11 @@ def draw_callback_px(self, context):
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
     blf.draw(font_id, "FastHenry Operator " )
 
-    blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-25, 0)
-    blf.draw(font_id, "Resistance " + str(my_properties.resistance_result))
+    for i, row in enumerate(self.result_list):
+        print(i)
+        blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-25-25*i, 0)
+        blf.draw(font_id, "Freq.: " + f"{row[0]:.3e}" + ", Res.: " + f"{row[1]:.3e}"+ ", Ind.: " + f"{row[2]:.3e}")
 
-    blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-50, 0)
-    blf.draw(font_id, "Inductance " + str(my_properties.inductance_result))
     
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
@@ -68,15 +69,32 @@ class BFH_OP_result_draw(bpy.types.Operator):
     
     def invoke(self, context, event):
         if context.area.type == 'VIEW_3D':
+            my_properties = context.window_manager.BFH_properties
             # the arguments we pass the the callback
             args = (self, context)
+            
+            #read impedance output file and update property group values 
+            read_status, frequency_list, inductance_list, resistance_list = read_Zc.read_Zc()
+            if read_status == 'no Zc file':
+                self.report()
+                return {{'WARNING'}, "no Zc file"}
+            if (len(frequency_list) == len(inductance_list)) and (len(frequency_list) == len(inductance_list)):
+                pass
+            else:
+                self.report()
+                return {{'WARNING'}, "results read from Zc file have different lengths"}
+            
+            #combine all results to single list
+            self.result_list =[]
+            for i, row in enumerate(frequency_list):
+                self.result_list.append((frequency_list[i], resistance_list[i], inductance_list[i]))
+
             #initialise draw function
             init()
+
             # Add the region OpenGL drawing callback
             # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
-
-            self.FH_result = 0
 
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
