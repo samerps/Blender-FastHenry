@@ -8,7 +8,13 @@ import os
 from gpu_extras.batch import batch_for_shader #type: ignore
 from ..functions import read_Zc
 
-
+def is_float(string): #function to check if string contains letters or float
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
+    
 def init():
     font_info = {
     "font_id": 0,
@@ -28,19 +34,29 @@ def init():
 def draw_callback_px(self, context):
     
     my_properties = context.window_manager.BFH_properties
-    font_id = 0  # XXX, need to find out how best to get this.
+    font_id = 0 
 
     # draw some text
-    blf.size(font_id, 25.0)
-
+    blf.size(font_id, 17.0)
+    blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
     blf.draw(font_id, "FastHenry Operator " )
 
     for i, row in enumerate(self.result_list):
-        print(i)
-        blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1]-25-25*i, 0)
-        blf.draw(font_id, "Freq.: " + f"{row[0]:.3e}" + ", Res.: " + f"{row[1]:.3e}"+ ", Ind.: " + f"{row[2]:.3e}")
-
+        xpos = self.mouse_pos[0]
+        ypos = self.mouse_pos[1]-25-25*i
+        blf.position(font_id, xpos, ypos, 0)
+        line_text = "Freq.: " + f"{row[0]:.2e}" + ", Res.: " + f"{row[1]:.3e}"+ ", Ind.: " + f"{row[2]:.3e}"
+        line_text_words = line_text.split()
+        for i, word in enumerate(line_text_words):
+            text_width, text_height = blf.dimensions(font_id, word)
+            if i % 2 == 0:
+                blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
+            else:
+                blf.color(font_id, self.RED[0], self.RED[1], self.RED[2], self.RED[3])
+            blf.draw(font_id, word + " ")
+            xpos += text_width * 1.25
+            blf.position(font_id, xpos, ypos, 0)
     
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
@@ -92,6 +108,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
             #initialise draw function
             init()
 
+            #prepare text and colours for draw function
+            self.RED = (1, 0, 0, 0.75)
+            self.WHITE = (1, 1, 1, 0.75)
+            
             # Add the region OpenGL drawing callback
             # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
             self._handle = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
