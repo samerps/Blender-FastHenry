@@ -37,7 +37,7 @@ def draw_callback_px(self, context):
     font_id = 0 
 
     # draw some text
-    blf.size(font_id, 17.0)
+    blf.size(font_id, 25.0)
     blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
     blf.draw(font_id, "FastHenry Operator" )

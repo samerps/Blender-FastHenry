@@ -7,8 +7,8 @@ import os
 def create_inp(self, context):
     my_properties = context.window_manager.BFH_properties
     #Fast Henry parameters#
-    fmin = my_properties.fmin
-    fmax = my_properties.fmax
+    fmin = my_properties.fmin*1e6
+    fmax = my_properties.fmax*1e6
     ndec = my_properties.ndec
     nhinc = my_properties.nhinc
     nwinc = my_properties.nwinc
@@ -17,7 +17,7 @@ def create_inp(self, context):
 
     zdefault = 0
     sigma = my_properties.conductivity*1000 #fasthenry sigma units 1/(mm*Ohms)
-    units ='mm'
+    units = my_properties.units_enum
 
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
@@ -49,7 +49,7 @@ def create_inp(self, context):
 
 
     textfile = open(my_properties.INP_file_name + ".inp", "w")
-    textfile.write('Blender Fast Henry Output' + '\n') #fast henry format first line must contain a comment
+    textfile.write('* Blender Fast Henry Output' + '\n') #fast henry format first line must contain a comment
     textfile.write('.units ' + units +  '\n')
     textfile.write('.default' + ' z='+str(zdefault) + ' sigma='+str(sigma) + ' nhinc='+str(nhinc) + ' nwinc='+str(nwinc) + ' rh='+str(rh) + ' rw='+str(rw) + '\n')
 
