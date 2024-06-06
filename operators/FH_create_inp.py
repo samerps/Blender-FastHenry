@@ -22,19 +22,31 @@ def create_inp(self, context):
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
 
-    #filepath =basedir + '//' + 'FHoutput.txt'
+    
+    #selected_object = bpy.context.selected_objects[0]
+    bpy.ops.object.duplicate() #duplicate object
+    selected_object = bpy.context.selected_objects[0] #assign duplicated object
+    
 
-    selected_object = bpy.context.selected_objects[0]
-    #bpy.ops.object. convert (target='MESH')
+    if my_properties.overide_geonodes == False:
+    #get width and height from geonode group of select object
+        w = selected_object.modifiers["BFH_curve"]["Socket_2"] 
+        h = selected_object.modifiers["BFH_curve"]["Socket_3"]
+    else:
+        w=0.1 #width
+        h=0.1 #height
 
+    bpy.ops.object.delete_all_modifiers() #delete all modifiers
+    bpy.ops.object.convert(target='MESH') #convert to mesh
+
+    #get vertices of selected object
     object_vertices = selected_object.data.vertices
+    #object_vertices = bpy.ops.object.data.vertices
     vertex_coordinates = []
 
     for vertex in object_vertices:
         vertex_coordinates.append(vertex.co)
 
-    w=0.1 #width
-    h=0.1 #height
 
     textfile = open(my_properties.INP_file_name + ".inp", "w")
     textfile.write('Blender Fast Henry Output' + '\n') #fast henry format first line must contain a comment
@@ -52,6 +64,8 @@ def create_inp(self, context):
     textfile.write('.freq' + ' fmin=' + str(fmin) + ' fmax=' + str(fmax) + ' ndec=' + str(ndec) + '\n')
     textfile.write('.end')
 
+    bpy.ops.object.delete(use_global=False)
+
 
 class BFH_OP_create_inp(bpy.types.Operator):
     """Tooltip"""
@@ -63,5 +77,12 @@ class BFH_OP_create_inp(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        create_inp(self, context)
-        return {'FINISHED'}
+
+        if bpy.context.selected_objects[0].type == 'CURVE':
+            if len(bpy.context.selected_objects) != 0:
+                create_inp(self, context)
+                return {'FINISHED'}
+        
+
+        self.report({'WARNING'}, "Object must be curve")
+        return {'CANCELLED'}

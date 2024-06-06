@@ -31,9 +31,9 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
     bl_idname = "object.bfh_run_fastfield"
     bl_label = "BFH run FastField"
 
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
+    # @classmethod
+    # def poll(cls, context):
+    #     return context.active_object is not None
 
     def execute(self, context):
         run_FastField(self, context)

@@ -8,9 +8,9 @@ class BFH_OP_result_draw(bpy.types.Operator):
     bl_idname = "object.bfh_run_all"
     bl_label = "BFH Run All"
 
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
+    # @classmethod
+    # def poll(cls, context):
+    #     return context.active_object is not None
 
     def execute(self, context):
         
@@ -18,7 +18,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
         bpy.ops.object.bfh_create_inp()
 
         #run Run FasHenry operator
-        bpy.ops.object.bfh_run_fastfield()
+        bpy.ops.object.bfh_run_fastfield('EXEC_DEFAULT')
 
         #run Display Results operator 
         bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')

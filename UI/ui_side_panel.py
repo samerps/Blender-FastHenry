@@ -22,6 +22,7 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.prop(my_properties, 'rw', text = "rw")
 
         col.prop(my_properties, 'show_fastfield_window',  text = "show FFS window")
+        col.prop(my_properties, 'overide_geonodes',  text = "overide geonodes")
         
         col.operator("object.bfh_create_inp", text = "Create INP file")
         col.operator("object.bfh_run_fastfield", text ="Run FastHenry")

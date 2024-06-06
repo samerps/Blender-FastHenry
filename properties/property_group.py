@@ -23,6 +23,7 @@ class BFH_property_group(bpy.types.PropertyGroup):
     INP_file_name: StringProperty(name=" INP File Name", default = "BFHoutput")   #type: ignore
 
     show_fastfield_window: BoolProperty(name="show fastfield window", default = False)  #type: ignore
+    overide_geonodes: BoolProperty(name="Overide Geonodes", default = False)  #type: ignore
 
     
 

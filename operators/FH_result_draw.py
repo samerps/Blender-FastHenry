@@ -40,7 +40,7 @@ def draw_callback_px(self, context):
     blf.size(font_id, 17.0)
     blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
     blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
-    blf.draw(font_id, "FastHenry Operator " )
+    blf.draw(font_id, "FastHenry Operator" )
 
     for i, row in enumerate(self.result_list):
         xpos = self.mouse_pos[0]
@@ -69,9 +69,9 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
     def modal(self, context, event):
 
-        self.mouse_pos =  (event.mouse_x, event.mouse_y)
-
         context.area.tag_redraw()
+        if event.type == 'MOUSEMOVE':
+            self.mouse_pos =  (event.mouse_region_x+25, event.mouse_region_y)
 
         if event.type == 'LEFTMOUSE':
             bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
