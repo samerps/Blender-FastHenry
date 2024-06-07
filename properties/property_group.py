@@ -32,7 +32,7 @@ class BFH_property_group(bpy.types.PropertyGroup):
             ('cm', "cm", "", "", 1),
             ('m', "m", "", "", 2)
     ],
-    default = "mm")
+    default = "cm")
 
     
 

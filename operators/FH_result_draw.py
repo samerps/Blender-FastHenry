@@ -8,12 +8,6 @@ import os
 from gpu_extras.batch import batch_for_shader #type: ignore
 from ..functions import read_Zc
 
-def is_float(string): #function to check if string contains letters or float
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
     
 def init():
     font_info = {
@@ -36,20 +30,37 @@ def draw_callback_px(self, context):
     my_properties = context.window_manager.BFH_properties
     font_id = 0 
 
+    # # draw rectangle
+    # vertices = (
+    # (100, 100), (300, 100),
+    # (100, 200), (300, 200))
+
+    # indices = (
+    #     (0, 1, 2), (2, 1, 3))
+
+    # shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    # batch = batch_for_shader(shader, 'TRIS', {"pos": vertices}, indices=indices)
+    # shader.uniform_float("color", (0.0, 0.0, 0.0, 1))
+    # batch.draw(shader)
+
     # draw some text
-    blf.size(font_id, 25.0)
+    blf.size(font_id, 40.0)
+    blf.shadow(font_id, 3, 0, 0, 0, 0.5)
     blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
-    blf.position(font_id, self.mouse_pos[0], self.mouse_pos[1], 0)
-    blf.draw(font_id, "FastHenry Operator" )
+    blf.position(font_id, self.text_pos[0], self.text_pos[1], 0)
+    word = "FastHenry Result "
+    blf.draw(font_id, word)
+    text_width, text_height = blf.dimensions(font_id, word)
+    #ypos = self.text_pos[1]-text_height*1.45
 
     for i, row in enumerate(self.result_list):
-        xpos = self.mouse_pos[0]
-        ypos = self.mouse_pos[1]-25-25*i
+        xpos = self.text_pos[0]
+        ypos = self.text_pos[1]-text_height*(i+1)*1.25
         blf.position(font_id, xpos, ypos, 0)
         line_text = "Freq.: " + f"{row[0]:.2e}" + ", Res.: " + f"{row[1]:.3e}"+ ", Ind.: " + f"{row[2]:.3e}"
         line_text_words = line_text.split()
         for i, word in enumerate(line_text_words):
-            text_width, text_height = blf.dimensions(font_id, word)
+            text_width, dummy = blf.dimensions(font_id, word)
             if i % 2 == 0:
                 blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
             else:
@@ -70,6 +81,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
     def modal(self, context, event):
 
         context.area.tag_redraw()
+        self.text_pos = (200,300)
         if event.type == 'MOUSEMOVE':
             self.mouse_pos =  (event.mouse_region_x+25, event.mouse_region_y)
 
@@ -109,8 +121,8 @@ class BFH_OP_result_draw(bpy.types.Operator):
             init()
 
             #prepare text and colours for draw function
-            self.RED = (1, 0, 0, 0.75)
-            self.WHITE = (1, 1, 1, 0.75)
+            self.RED = (1, 1, 0, 1)
+            self.WHITE = (1, 1, 1, 1)
             
             # Add the region OpenGL drawing callback
             # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
