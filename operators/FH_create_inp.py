@@ -36,7 +36,8 @@ def create_inp(self, context):
         w=0.1 #width
         h=0.1 #height
 
-    bpy.ops.object.delete_all_modifiers() #delete all modifiers
+    #bpy.ops.object.delete_all_modifiers() #delete all modifiers
+    bpy.ops.object.modifier_remove(modifier='BFH_curve')
     bpy.ops.object.convert(target='MESH') #convert to mesh
 
     #get vertices of selected object
