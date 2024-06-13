@@ -5,9 +5,9 @@ from bpy.props import FloatVectorProperty, FloatProperty, FloatVectorProperty, B
 import bpy.utils.previews #type: ignore
 
 class BFH_property_group(bpy.types.PropertyGroup):
-    inductance_result: FloatVectorProperty(name="inductance result") #type: ignore
-    resistance_result: FloatVectorProperty(name="resistance result")   #type: ignore
-    frequency_list: FloatVectorProperty(name="frequency list")                      #type: ignore
+    inductance_result: FloatVectorProperty(name="inductance result", size = 5, default = [0,0,0,0,0]) #type: ignore
+    resistance_result: FloatVectorProperty(name="resistance result", size = 5, default = [0,0,0,0,0])   #type: ignore
+    frequency_list: FloatVectorProperty(name="frequency list", size = 5, default = [0,0,0,0,0])                      #type: ignore
 
     fmin: FloatProperty(name="min frequency", min = 0, default = 0.1)         #type: ignore
     fmax: FloatProperty(name="max frequency", min = 0, default = 10)         #type: ignore
