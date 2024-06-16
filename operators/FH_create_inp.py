@@ -54,14 +54,23 @@ def create_inp(self, context):
     textfile.write('.units ' + units +  '\n')
     textfile.write('.default' + ' z='+str(zdefault) + ' sigma='+str(sigma) + ' nhinc='+str(nhinc) + ' nwinc='+str(nwinc) + ' rh='+str(rh) + ' rw='+str(rw) + '\n')
 
+    
+    ###NODES
+    textfile.write('* NODES \n')
     for indx, co in enumerate(vertex_coordinates):
         textfile.write('N' + str(indx+1) + ' x=' + str(co.x) + ' y=' + str(co.y) + ' z=' + str(co.z) + '\n' ) 
 
-
+    ###ELEMENTS
+    textfile.write('* SEGMENTS \n')
     for i in range(len(vertex_coordinates)-1):
         textfile.write('E' + str(i+1) + ' N' + str(i+1) + ' N' + str(i+2) + ' w=' + str(w) + ' h=' + str(h) + '\n') 
 
+    
+    ###PORT
+    textfile.write('* PORTTS \n')
     textfile.write('.external ' + 'N1 ' + 'N' + str(len(vertex_coordinates)) + '\n')
+    
+    ###FREQUENCY RANGE
     textfile.write('.freq' + ' fmin=' + str(fmin) + ' fmax=' + str(fmax) + ' ndec=' + str(ndec) + '\n')
     textfile.write('.end')
 
