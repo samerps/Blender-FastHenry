@@ -42,33 +42,36 @@ def create_inp(self, context):
 
     #get vertices of selected object
     object_vertices = selected_object.data.vertices
-    #object_vertices = bpy.ops.object.data.vertices
-    vertex_coordinates = []
+    mat_world = selected_object.matrix_world
+    vertex_co_global = []
 
     for vertex in object_vertices:
-        vertex_coordinates.append(vertex.co)
+        vertex_co_global.append(mat_world @ vertex.co)
 
 
     textfile = open(my_properties.INP_file_name + ".inp", "w")
     textfile.write('* Blender Fast Henry Output' + '\n') #fast henry format first line must contain a comment
     textfile.write('.units ' + units +  '\n')
+    textfile.write('.default z={} sigma={} nhinc={} nwinc={} rh={} rw={} \n' .format(zdefault, sigma, nhinc, nwinc, rh, rw))
     textfile.write('.default' + ' z='+str(zdefault) + ' sigma='+str(sigma) + ' nhinc='+str(nhinc) + ' nwinc='+str(nwinc) + ' rh='+str(rh) + ' rw='+str(rw) + '\n')
 
     
     ###NODES
     textfile.write('* NODES \n')
-    for indx, co in enumerate(vertex_coordinates):
-        textfile.write('N' + str(indx+1) + ' x=' + str(co.x) + ' y=' + str(co.y) + ' z=' + str(co.z) + '\n' ) 
+    for indx, co in enumerate(vertex_co_global):
+        textfile.write('N{} x={} y={} z={} \n' .format(indx+1, co.x, co.y, co.z))
+        #textfile.write('N' + str(indx+1) + ' x=' + str(co.x) + ' y=' + str(co.y) + ' z=' + str(co.z) + '\n' ) 
 
     ###ELEMENTS
     textfile.write('* SEGMENTS \n')
-    for i in range(len(vertex_coordinates)-1):
-        textfile.write('E' + str(i+1) + ' N' + str(i+1) + ' N' + str(i+2) + ' w=' + str(w) + ' h=' + str(h) + '\n') 
+    for i in range(len(vertex_co_global)-1):
+        textfile.write('E{} N{} N{} w={} h={} \n' .format(i+1, i+1, i+2, w, h))
+        #textfile.write('E' + str(i+1) + ' N' + str(i+1) + ' N' + str(i+2) + ' w=' + str(w) + ' h=' + str(h) + '\n')
 
     
     ###PORT
     textfile.write('* PORTTS \n')
-    textfile.write('.external ' + 'N1 ' + 'N' + str(len(vertex_coordinates)) + '\n')
+    textfile.write('.external ' + 'N1 ' + 'N' + str(len(vertex_co_global)) + '\n')
     
     ###FREQUENCY RANGE
     textfile.write('.freq' + ' fmin=' + str(fmin) + ' fmax=' + str(fmax) + ' ndec=' + str(ndec) + '\n')
