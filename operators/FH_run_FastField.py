@@ -26,6 +26,9 @@ def run_FastField(self, context):
     R = FastHenry2.GetResistance
     L = FastHenry2.getInductance
 
+    print(R)
+    print(L)
+
     #set all values to zero
     for i in range(5):
         my_properties.frequency_list[i] = 0
@@ -35,7 +38,7 @@ def run_FastField(self, context):
     #now insert new results
     for i in range(len(Frequencies)):
         my_properties.frequency_list[i] = Frequencies[i]
-        my_properties.resistance_result[i] = L[i][0][0]
+        my_properties.resistance_result[i] = R[i][0][0]
         my_properties.inductance_result[i] = L[i][0][0]
 
 class BFH_OP_run_FastHenry(bpy.types.Operator):

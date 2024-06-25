@@ -92,21 +92,21 @@ class BFH_OP_result_draw(bpy.types.Operator):
             # the arguments we pass the the callback
             args = (self, context)
             
-            #read impedance output file and update property group values 
-            read_status, frequency_list, inductance_list, resistance_list = read_Zc.read_Zc()
-            if read_status == 'no Zc file':
-                self.report()
-                return {{'WARNING'}, "no Zc file"}
-            if (len(frequency_list) == len(inductance_list)) and (len(frequency_list) == len(inductance_list)):
-                pass
-            else:
-                self.report()
-                return {{'WARNING'}, "results read from Zc file have different lengths"}
+            # #read impedance output file and update property group values 
+            # read_status, frequency_list, inductance_list, resistance_list = read_Zc.read_Zc()
+            # if read_status == 'no Zc file':
+            #     self.report()
+            #     return {{'WARNING'}, "no Zc file"}
+            # if (len(frequency_list) == len(inductance_list)) and (len(frequency_list) == len(inductance_list)):
+            #     pass
+            # else:
+            #     self.report()
+            #     return {{'WARNING'}, "results read from Zc file have different lengths"}
             
-            #combine all results to single list
-            self.result_list =[]
-            for i, row in enumerate(frequency_list):
-                self.result_list.append((frequency_list[i], resistance_list[i], inductance_list[i]))
+            # #combine all results to single list
+            # self.result_list =[]
+            # for i, row in enumerate(frequency_list):
+            #     self.result_list.append((frequency_list[i], resistance_list[i], inductance_list[i]))
 
             #initialise draw function
             init()
