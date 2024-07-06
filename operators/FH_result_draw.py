@@ -5,9 +5,9 @@ import bpy #type: ignore
 import gpu #type: ignore
 import blf #type: ignore
 import os
+import mathutils #type: ignore
 from gpu_extras.batch import batch_for_shader #type: ignore
 from ..functions import read_Zc
-
     
 def init():
     font_info = {
@@ -24,6 +24,19 @@ def init():
         # Default font.
         font_info["font_id"] = 0
     
+def obj_bounds(obj):
+    #get bounding box vertices of object with transform 
+    mat_world = obj.matrix_world
+    bound_coords = obj.bound_box
+    trans_bound_coords = []
+    
+    for co in bound_coords:
+        trans_co_vec = []
+        co_vec = mathutils.Vector(co[:])
+        trans_co_vec = mat_world @ co_vec
+        trans_bound_coords.append(trans_co_vec)      
+    return trans_bound_coords
+
 
 def draw_callback_px(self, context):
     
@@ -38,7 +51,6 @@ def draw_callback_px(self, context):
     word = "FastHenry Result: "
     blf.draw(font_id, word)
     text_width, text_height = blf.dimensions(font_id, word)
-    
     
     for i in range(len(my_properties.frequency_list)):          
         xpos = self.text_pos[0]
@@ -58,7 +70,20 @@ def draw_callback_px(self, context):
             blf.draw(font_id, word + " ")
             xpos += text_width * 1.25
             blf.position(font_id, xpos, ypos, 0)
+
+def draw_callback_pv(self, context):   
+    #draw bounding boxes 
+
+    if len(self.trans_bound_coords) == 0:
+        print("returned")
+        return
     
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    batch = batch_for_shader(shader, 'LINES', {"pos": self.trans_bound_coords}, indices=self.indices)
+    
+    shader.uniform_float("color", (1, 0, 0, 1))
+    batch.draw(shader)
+
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
@@ -71,20 +96,41 @@ class BFH_OP_result_draw(bpy.types.Operator):
     def modal(self, context, event):
 
         context.area.tag_redraw()
-        
-        
-        if event.type == 'MOUSEMOVE':
-            self.mouse_pos =  (event.mouse_region_x+25, event.mouse_region_y)
 
-        if event.type == 'LEFTMOUSE':
-            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
-            return {'FINISHED'}
+        #first run
+        if self.first_run == True:
+            self.obj_index = 0
+            self.first_run = False
+            current_obj = self.FastHenry_col.objects[self.obj_index] 
+            self.trans_bound_coords = obj_bounds(current_obj)
+                            
+        if event.type == 'WHEELUPMOUSE':
+            self.obj_index += 1
+            if self.obj_index == self.no_of_objs:
+                self.obj_index = 0
 
-        elif event.type in {'RIGHTMOUSE', 'ESC'}:
-            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+            current_obj = self.FastHenry_col.objects[self.obj_index]  
+            self.trans_bound_coords = obj_bounds(current_obj)
+            return {'RUNNING_MODAL'}
+            
+        elif event.type == 'WHEELDOWNMOUSE':
+            self.obj_index -=1
+            if self.obj_index == -1:
+                self.obj_index = self.no_of_objs -1
+            current_obj = self.FastHenry_col.objects[self.obj_index]  
+            self.trans_bound_coords = obj_bounds(current_obj)
+            return {'RUNNING_MODAL'}    
+            
+        elif event.type in {'MIDDLEMOUSE', 'MOUSEMOVE'}:
+            return {'PASS_THROUGH'}
+        
+        elif event.type in {'LEFTMOUSE', 'RIGHTMOUSE', 'ESC'}:
+            context.area.header_text_set(None)
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle_px, 'WINDOW')
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv, 'WINDOW')
             return {'CANCELLED'}
 
-        return {'RUNNING_MODAL'}
+        return {'PASS_THROUGH'}
     
     def invoke(self, context, event):
         if context.area.type == 'VIEW_3D':
@@ -92,22 +138,6 @@ class BFH_OP_result_draw(bpy.types.Operator):
             # the arguments we pass the the callback
             args = (self, context)
             
-            # #read impedance output file and update property group values 
-            # read_status, frequency_list, inductance_list, resistance_list = read_Zc.read_Zc()
-            # if read_status == 'no Zc file':
-            #     self.report()
-            #     return {{'WARNING'}, "no Zc file"}
-            # if (len(frequency_list) == len(inductance_list)) and (len(frequency_list) == len(inductance_list)):
-            #     pass
-            # else:
-            #     self.report()
-            #     return {{'WARNING'}, "results read from Zc file have different lengths"}
-            
-            # #combine all results to single list
-            # self.result_list =[]
-            # for i, row in enumerate(frequency_list):
-            #     self.result_list.append((frequency_list[i], resistance_list[i], inductance_list[i]))
-
             #initialise draw function
             init()
 
@@ -115,12 +145,40 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.text_pos = [200,300]
             self.RED = (1, 1, 0, 1)
             self.WHITE = (1, 1, 1, 1)
+
+            #check if "FastHenry" collection exist, then define parameters related to drawing bounding box around objects in the collection
+            FastHenry_col_found = False
+            
+            self.first_run = True
+            self.trans_bound_coords = []
+            self.indices = (
+                (1, 0), (0, 3), (3, 2), (2, 1),
+                (3, 7), (7, 6), (6, 2),
+                (0, 4), (4, 5), (5, 1),
+                (4, 7), (5, 6)
+                )
+            for col in bpy.data.collections:
+                if col.name == 'FastHenry':
+                    FastHenry_col_found = True
+                    #print(FastHenry_col_found)
+                    self.FastHenry_col = col
+                    self.no_of_objs = len(col.objects)
+                    #print(self.no_of_objs)
+                    self.obj_index = 0
+                    
+            if FastHenry_col_found == False:
+                print("no FastHenry Collection")
+                #bpy.types.SpaceView3D.draw_handler_remove(self._handle_px 'WINDOW')
+                #bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv 'WINDOW')
+                self.report({'WARNING'}, "Active space must be a View3d")
+                return {'CANCELLED'}
             
             # Add the region OpenGL drawing callback
             # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
-            self._handle = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
-
+            self._handle_px = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
+            self._handle_pv = bpy.types.SpaceView3D.draw_handler_add(draw_callback_pv, args, 'WINDOW', 'POST_VIEW')
             context.window_manager.modal_handler_add(self)
+
             return {'RUNNING_MODAL'}
         else:
             self.report({'WARNING'}, "View3D not found, cannot run operator")

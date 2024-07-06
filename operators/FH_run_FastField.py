@@ -1,6 +1,7 @@
 import os
 import sys 
 import bpy #type: ignore
+import numpy as np
 
 import win32com.client
 import win32api
@@ -18,16 +19,24 @@ def run_FastField(self, context):
 
     FastHenry2.Run(basedir + "\\" + my_properties.INP_file_name + ".inp")
 
-    running = FastHenry2.IsRunning
+    #running = FastHenry2.IsRunning
     while FastHenry2.IsRunning:
         win32api.Sleep(100)
 
-    Frequencies = FastHenry2.GetFrequencies
-    R = FastHenry2.GetResistance
-    L = FastHenry2.getInductance
+    Frequencies = np.array(FastHenry2.GetFrequencies)
+    R = np.array(FastHenry2.GetResistance)
+    L = np.array(FastHenry2.getInductance)
 
-    print(R)
-    print(L)
+    #write results in a text file, this is so that when opening a Blender FastHenry scene we can display results (if the simulation was done previously) without having to rerun the simultion
+    np.savetxt("frequencies.csv", Frequencies, delimiter=",")
+    np.savetxt("resistances.csv", R, delimiter=",")
+    np.savetxt("inductances.csv", L, delimiter=",")
+
+    # first index of R, L selects all impedances at the same frequency   
+    # second index of R,L selects the row (or the object)
+    # third index of R, L, selects either the object itself (i.e. self inductance) or the coupling (i.e. mutual inductance) to the next object  
+    #print(R)
+    #print(L)
 
     #set all values to zero
     for i in range(5):
