@@ -23,32 +23,49 @@ def run_FastField(self, context):
     while FastHenry2.IsRunning:
         win32api.Sleep(100)
 
-    Frequencies = np.array(FastHenry2.GetFrequencies)
-    R = np.array(FastHenry2.GetResistance)
-    L = np.array(FastHenry2.getInductance)
+    frequency = np.array(FastHenry2.GetFrequencies)
+    resistance = np.array(FastHenry2.GetResistance)
+    inductance = np.array(FastHenry2.getInductance)
 
     #write results in a text file, this is so that when opening a Blender FastHenry scene we can display results (if the simulation was done previously) without having to rerun the simultion
-    np.savetxt("frequencies.csv", Frequencies, delimiter=",")
-    np.savetxt("resistances.csv", R, delimiter=",")
-    np.savetxt("inductances.csv", L, delimiter=",")
+
+    if os.path.exists("frequency.csv"):
+        os.remove("frequency.csv")
+
+    if os.path.exists("resistance.csv"):
+        os.remove("resistance.csv")
+
+    if os.path.exists("inductance.csv"):
+        os.remove("inductance.csv")
+
+    with open("frequency.csv", "ab") as f:
+        np.savetxt(f, frequency, delimiter=",")
+
+    with open("resistance.csv", "ab") as f:
+        for i in range(len(frequency)):
+            np.savetxt(f, resistance[i], delimiter=",",  header=str(frequency[i]))
+
+    with open("inductance.csv", "ab") as f:
+        for i in range(len(frequency)):
+            np.savetxt(f, inductance[i], delimiter=",",  header=str(frequency[i]))
 
     # first index of R, L selects all impedances at the same frequency   
     # second index of R,L selects the row (or the object)
     # third index of R, L, selects either the object itself (i.e. self inductance) or the coupling (i.e. mutual inductance) to the next object  
     #print(R)
-    #print(L)
+    #print(L[0])
 
     #set all values to zero
-    for i in range(5):
-        my_properties.frequency_list[i] = 0
-        my_properties.resistance_result[i] = 0
-        my_properties.inductance_result[i] = 0
+    # for i in range(5):
+    #     my_properties.frequency_list[i] = 0
+    #     my_properties.resistance_result[i] = 0
+    #     my_properties.inductance_result[i] = 0
 
-    #now insert new results
-    for i in range(len(Frequencies)):
-        my_properties.frequency_list[i] = Frequencies[i]
-        my_properties.resistance_result[i] = R[i][0][0]
-        my_properties.inductance_result[i] = L[i][0][0]
+    # #now insert new results
+    # for i in range(len(Frequencies)):
+    #     my_properties.frequency_list[i] = Frequencies[i]
+    #     my_properties.resistance_result[i] = R[i][0][0]
+    #     my_properties.inductance_result[i] = L[i][0][0]
 
 class BFH_OP_run_FastHenry(bpy.types.Operator):
     """Tooltip"""

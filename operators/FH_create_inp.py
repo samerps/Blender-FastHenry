@@ -68,7 +68,7 @@ def create_inp(self, context):
         textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
 
     ###FREQUENCY RANGE
-    textfile.write('.freq' + ' fmin=' + str(fmin) + ' fmax=' + str(fmax) + ' ndec=' + str(ndec) + '\n')
+    textfile.write('.freq' + ' fmin=' + str(int(fmin)) + ' fmax=' + str(int(fmax)) + ' ndec=' + str(ndec) + '\n')
     textfile.write('.end')
 
 class BFH_OP_create_inp(bpy.types.Operator):

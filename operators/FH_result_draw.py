@@ -5,9 +5,10 @@ import bpy #type: ignore
 import gpu #type: ignore
 import blf #type: ignore
 import os
+import numpy as np
 import mathutils #type: ignore
 from gpu_extras.batch import batch_for_shader #type: ignore
-from ..functions import read_Zc
+from ..functions import read_Zc, read_csv_data
     
 def init():
     font_info = {
@@ -44,22 +45,20 @@ def draw_callback_px(self, context):
     font_id = 0 
 
     # draw some text
-    blf.size(font_id, 40.0)
+    blf.size(font_id, self.text_size)
     blf.shadow(font_id, 3, 0, 0, 0, 0.5)
     blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
     blf.position(font_id, self.text_pos[0], self.text_pos[1], 0)
-    word = "FastHenry Result: "
+    word = "FastHenry Result: " + self.obj_name_to_display
     blf.draw(font_id, word)
     text_width, text_height = blf.dimensions(font_id, word)
     
-    for i in range(len(my_properties.frequency_list)):          
+    for i in range(len(self.frequency)):          
         xpos = self.text_pos[0]
         ypos = self.text_pos[1]-text_height*(i+1)*1.25
         blf.position(font_id, xpos, ypos, 0)
-        if my_properties.frequency_list[i] == 0:
-            line_text = ""
-        else:
-            line_text =  "Freq.: " + f"{my_properties.frequency_list[i]:.2e}" + ", Res.: " + f"{my_properties.resistance_result[i]:.3e}" + ", Ind.: " + f"{my_properties.inductance_result[i]:.3e}"
+        #prepare line text string to display
+        line_text =  "Freq.: " + np.array2string(self.frequency_display[i], precision=3) + ", Res.: " + np.array2string(self.resistance_display[i], precision=3) + ", Ind.: " + np.array2string(self.inductance_display[i], precision=3)
         line_text_words = line_text.split()
         for i, word in enumerate(line_text_words):
             text_width, dummy = blf.dimensions(font_id, word)
@@ -81,9 +80,16 @@ def draw_callback_pv(self, context):
     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINES', {"pos": self.trans_bound_coords}, indices=self.indices)
     
-    shader.uniform_float("color", (1, 0, 0, 1))
+    shader.uniform_float("color", (1, 0, 0, 1)) #red
     batch.draw(shader)
 
+    if self.no_of_objs > 1 and self.mutual_obj_index != self.obj_index:
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+        batch = batch_for_shader(shader, 'LINES', {"pos": self.mutual_bound_coords}, indices=self.indices)
+    
+        shader.uniform_float("color", (1, 1, 0, 1)) #yellow
+        batch.draw(shader)       
+    
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
@@ -97,31 +103,93 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
         context.area.tag_redraw()
 
-        #first run
+        #### below are for scrolling through objects for  bound box drawing
+        #first run for bound box drawing
         if self.first_run == True:
             self.obj_index = 0
             self.first_run = False
             current_obj = self.FastHenry_col.objects[self.obj_index] 
             self.trans_bound_coords = obj_bounds(current_obj)
-                            
-        if event.type == 'WHEELUPMOUSE':
+            self.obj_name_to_display = current_obj.name
+
+            #check for mutual inductance
+            if self.no_of_objs > 1:
+                mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+                self.mutual_bound_coords = obj_bounds(mutual_obj)
+                self.mutual_obj_name_to_display = mutual_obj.name
+                    
+        ####
+        #prepare self-resistance and self-inductance for displaying for each frequency 
+        self.frequency_display = []
+        self.resistance_display = []
+        self.inductance_display = []
+        j = self.obj_index
+        for i in range(len(self.frequency)):
+            self.frequency_display.append(self.frequency[i])
+            self.resistance_display.append(self.resistance[i][j][j])
+            self.inductance_display.append(self.inductance[i][j][j])
+
+        ### prepare coupling (mutual inductance) data, check if we actually have more than one object 
+        if self.no_of_objs > 1:
+            self.mutual_inductance_display = []
+            k = self.mutual_obj_index
+            for i in range(len(self.frequency)):
+                self.mutual_inductance_display.append(self.inductance[i][j][k])
+                 
+        np.set_printoptions(formatter={'float': lambda x: format(x, '.2E')})
+
+        ###events
+
+        if event.type == 'UP_ARROW' and event.value == 'PRESS':
             self.obj_index += 1
             if self.obj_index == self.no_of_objs:
                 self.obj_index = 0
 
             current_obj = self.FastHenry_col.objects[self.obj_index]  
             self.trans_bound_coords = obj_bounds(current_obj)
+            self.obj_name_to_display = current_obj.name
             return {'RUNNING_MODAL'}
             
-        elif event.type == 'WHEELDOWNMOUSE':
+        elif event.type == 'DOWN_ARROW' and event.value == 'PRESS':
             self.obj_index -=1
             if self.obj_index == -1:
                 self.obj_index = self.no_of_objs -1
             current_obj = self.FastHenry_col.objects[self.obj_index]  
             self.trans_bound_coords = obj_bounds(current_obj)
-            return {'RUNNING_MODAL'}    
-            
-        elif event.type in {'MIDDLEMOUSE', 'MOUSEMOVE'}:
+            self.obj_name_to_display = current_obj.name
+            return {'RUNNING_MODAL'}
+
+        elif event.type == 'RIGHT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
+            self.mutual_obj_index += 1
+            if self.mutual_obj_index == self.obj_index:
+                self.mutual_obj_index +=1
+            if self.mutual_obj_index == self.no_of_objs:
+                if  self.obj_index == 0:
+                    self.mutual_obj_index = 1
+                else:
+                    self.mutual_obj_index = 0
+
+            mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+            self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
+            self.mutual_obj_name_to_display = mutual_obj.name
+            return {'RUNNING_MODAL'}
+        
+        elif event.type == 'LEFT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
+            self.mutual_obj_index -=1
+            if self.mutual_obj_index == self.obj_index:
+                self.mutual_obj_index -=1
+            if self.mutual_obj_index == -1:
+                if self.obj_index == self.no_of_objs -1:
+                    self.mutual_obj_index = self.no_of_objs - 2
+                else:
+                    self.mutual_obj_index = self.no_of_objs -1
+                    
+            mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+            self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
+            self.mutual_obj_name_to_display = mutual_obj.name
+            return {'RUNNING_MODAL'}
+        
+        if event.type in {'MIDDLEMOUSE', 'MOUSEMOVE'}:
             return {'PASS_THROUGH'}
         
         elif event.type in {'LEFTMOUSE', 'RIGHTMOUSE', 'ESC'}:
@@ -133,16 +201,19 @@ class BFH_OP_result_draw(bpy.types.Operator):
         return {'PASS_THROUGH'}
     
     def invoke(self, context, event):
+
         if context.area.type == 'VIEW_3D':
             my_properties = context.window_manager.BFH_properties
             # the arguments we pass the the callback
             args = (self, context)
             
-            #initialise draw function
+            #initialise draw function for text
             init()
 
-            #prepare text and colours for draw function
-            self.text_pos = [200,300]
+            #prepare text and colours for draw function,  based on viewport width and length
+             
+            self.text_pos = [context.area.width/10, context.area.height/5]
+            self.text_size = context.area.width/50
             self.RED = (1, 1, 0, 1)
             self.WHITE = (1, 1, 1, 1)
 
@@ -165,12 +236,26 @@ class BFH_OP_result_draw(bpy.types.Operator):
                     self.no_of_objs = len(col.objects)
                     #print(self.no_of_objs)
                     self.obj_index = 0
+                    self.mutual_obj_index = 1
                     
             if FastHenry_col_found == False:
                 print("no FastHenry Collection")
                 #bpy.types.SpaceView3D.draw_handler_remove(self._handle_px 'WINDOW')
                 #bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv 'WINDOW')
                 self.report({'WARNING'}, "Active space must be a View3d")
+                return {'CANCELLED'}
+            
+            ### get data from csv files 
+            self.frequency, self.resistance , self.inductance = read_csv_data.read_csv_data()
+
+            #check if csv data is empty
+            if len(self.frequency) == 0:
+                self.report({'WARNING'}, "no CSV data")
+                return {'CANCELLED'}
+            
+            #check if csv data matches the number of the objects in FastHenry collection, pick resistance or inductance
+            if len(self.resistance[0][:]) != self.no_of_objs:
+                self.report({'WARNING'}, "CSV data does not match number of objects")
                 return {'CANCELLED'}
             
             # Add the region OpenGL drawing callback
@@ -187,7 +272,6 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
 def menu_func(self, context):
     self.layout.operator(BFH_OP_result_draw.bl_idname, text="Modal Draw Operator2")
-
 
 # Register and add to the "view" menu (required to also use F3 search "Modal Draw Operator" for quick access).
 def register():
