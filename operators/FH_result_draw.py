@@ -44,31 +44,94 @@ def draw_callback_px(self, context):
     my_properties = context.window_manager.BFH_properties
     font_id = 0 
 
-    # draw some text
+    ### draw text header
     blf.size(font_id, self.text_size)
     blf.shadow(font_id, 3, 0, 0, 0, 0.5)
-    blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
-    blf.position(font_id, self.text_pos[0], self.text_pos[1], 0)
-    word = "FastHenry Result: " + self.obj_name_to_display
-    blf.draw(font_id, word)
-    text_width, text_height = blf.dimensions(font_id, word)
+    xpos = self.text_pos[0]
+    ypos = self.text_pos[1]
+    line_text = "FastHenry Result: "
+    blf.color(font_id, 1, 1, 1, 1)
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, text_height = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
     
+    ### draw object name
+    xpos = self.text_pos[0]
+    ypos = self.text_pos[1]-text_height*1.25
+    line_text = "Curve: "
+    blf.color(font_id, 1, 1, 1, 1) #white
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, dummy = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+
+    xpos += text_width * 1.25
+    line_text = self.obj_name_to_display
+    blf.color(font_id, 1, 0.1, 0, 1) #orange
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, dummy = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+    
+    ### draw self-resistance and self-inductance texts for all frequencies 
     for i in range(len(self.frequency)):          
         xpos = self.text_pos[0]
-        ypos = self.text_pos[1]-text_height*(i+1)*1.25
+        ypos = self.text_pos[1]-text_height*(i+2)*1.25
         blf.position(font_id, xpos, ypos, 0)
-        #prepare line text string to display
-        line_text =  "Freq.: " + np.array2string(self.frequency_display[i], precision=3) + ", Res.: " + np.array2string(self.resistance_display[i], precision=3) + ", Ind.: " + np.array2string(self.inductance_display[i], precision=3)
+        
+        line_text =  "Freq.: " + np.array2string(self.frequency_display[i], precision=3) + " Res.: " + np.array2string(self.resistance_display[i], precision=3) + " Ind.: " + np.array2string(self.inductance_display[i], precision=3)
         line_text_words = line_text.split()
-        for i, word in enumerate(line_text_words):
+        
+        for word in line_text_words:
             text_width, dummy = blf.dimensions(font_id, word)
-            if i % 2 == 0:
-                blf.color(font_id, self.WHITE[0], self.WHITE[1], self.WHITE[2], self.WHITE[3])
+            if word in {'Freq.:', 'Res.:', 'Ind.:'}:
+                blf.color(font_id, 1, 1, 1, 1) #white
             else:
-                blf.color(font_id, self.RED[0], self.RED[1], self.RED[2], self.RED[3])
+                blf.color(font_id, 1, 0.1, 0, 1) #orange
+            
             blf.draw(font_id, word + " ")
             xpos += text_width * 1.25
             blf.position(font_id, xpos, ypos, 0)
+
+    ### draw mutual inductance texts
+    if self.no_of_objs == 1:
+        return
+    
+    ### draw mutual object name
+    xpos += text_width
+    xpos_store = xpos 
+    #xpos_m += text_width 
+    ypos = self.text_pos[1]-text_height*1.25
+    line_text = "Mutual Curve: "
+    blf.color(font_id, 1, 1, 1, 1) #white
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, dummy = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+
+    xpos += text_width * 1.25
+    line_text = self.mutual_obj_name_to_display
+    blf.color(font_id, 1, 1, 0, 1) #yellow
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, dummy = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+
+    for i in range(len(self.frequency)):          
+        xpos = xpos_store
+        ypos = self.text_pos[1]-text_height*(i+2)*1.25
+        blf.position(font_id, xpos, ypos, 0)
+        
+        line_text =  "Mut_Ind.: " + np.array2string(self.mutual_inductance_display[i], precision=3)
+        line_text_words = line_text.split()
+        
+        for word in line_text_words:
+            text_width, dummy = blf.dimensions(font_id, word)
+            if word in {'Mut_Ind.:'}:
+                blf.color(font_id, 1, 1, 1, 1) #white
+            else:
+                blf.color(font_id, 1, 1, 0, 1) #yellow
+            
+            blf.draw(font_id, word + " ")
+            xpos += text_width * 1.25
+            blf.position(font_id, xpos, ypos, 0)
+
 
 def draw_callback_pv(self, context):   
     #draw bounding boxes 
@@ -88,8 +151,17 @@ def draw_callback_pv(self, context):
         batch = batch_for_shader(shader, 'LINES', {"pos": self.mutual_bound_coords}, indices=self.indices)
     
         shader.uniform_float("color", (1, 1, 0, 1)) #yellow
-        batch.draw(shader)       
-    
+        batch.draw(shader)
+
+        #draw line from selected object to mutual object, this is done by getting average coordinates of the bounding box
+        avg_obj_bound = np.average(np.array(self.trans_bound_coords), axis=0)
+        avg_mutual_obj_bound = np.average(np.array(self.mutual_bound_coords), axis=0)
+        obj_to_mutual_line = (tuple(avg_obj_bound.tolist()), tuple(avg_mutual_obj_bound.tolist()))
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+        batch = batch_for_shader(shader, 'LINES', {"pos": obj_to_mutual_line})  
+        shader.uniform_float("color", (1, 1, 0, 1)) #yellow   
+        batch.draw(shader)
+
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
@@ -212,10 +284,8 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
             #prepare text and colours for draw function,  based on viewport width and length
              
-            self.text_pos = [context.area.width/10, context.area.height/5]
-            self.text_size = context.area.width/50
-            self.RED = (1, 1, 0, 1)
-            self.WHITE = (1, 1, 1, 1)
+            self.text_pos = [context.area.width/10, context.area.height/3.5]
+            self.text_size = my_properties.text_size * context.area.width/35
 
             #check if "FastHenry" collection exist, then define parameters related to drawing bounding box around objects in the collection
             FastHenry_col_found = False

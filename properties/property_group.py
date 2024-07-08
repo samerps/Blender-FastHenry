@@ -34,6 +34,8 @@ class BFH_property_group(bpy.types.PropertyGroup):
     ],
     default = "cm")
 
+    text_size: FloatProperty(name="text size", min = 0.1, max = 1, default = 0.5)         #type: ignore
+
     
 
 
