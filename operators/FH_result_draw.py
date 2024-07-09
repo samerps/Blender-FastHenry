@@ -44,6 +44,13 @@ def draw_callback_px(self, context):
     my_properties = context.window_manager.BFH_properties
     font_id = 0 
 
+    ### draw background
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    batch = batch_for_shader(shader, 'TRIS', {"pos": self.background_verts}, indices=((0, 1, 2), (2, 1, 3)))
+    gpu.state.blend_set('ALPHA_PREMULT')
+    shader.uniform_float("color", (0.12, 0.12, 0.12, .75))
+    batch.draw(shader)
+
     ### draw text header
     blf.size(font_id, self.text_size)
     blf.shadow(font_id, 3, 0, 0, 0, 0.5)
@@ -92,7 +99,7 @@ def draw_callback_px(self, context):
             blf.position(font_id, xpos, ypos, 0)
 
     ### draw mutual inductance texts
-    if self.no_of_objs == 1:
+    if self.no_of_objs == 1  or self.mutual_obj_index == self.obj_index:
         return
     
     ### draw mutual object name
@@ -284,11 +291,14 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
             #prepare text and colours for draw function,  based on viewport width and length
              
-            self.text_pos = [context.area.width/10, context.area.height/3.5]
-            self.text_size = my_properties.text_size * context.area.width/35
+            self.text_pos = [context.area.width/10, context.area.height/4.5]
+            self.text_size = my_properties.text_size * context.area.width/50
 
-            #check if "FastHenry" collection exist, then define parameters related to drawing bounding box around objects in the collection
-            FastHenry_col_found = False
+            background_vert0 = (0,0)
+            background_vert1 = (context.area.width,0)
+            background_vert2 = (0, context.area.height/4)
+            background_vert3 = (context.area.width, context.area.height/4)
+            self.background_verts = (background_vert0, background_vert1, background_vert2, background_vert3)
             
             self.first_run = True
             self.trans_bound_coords = []
@@ -298,6 +308,8 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 (0, 4), (4, 5), (5, 1),
                 (4, 7), (5, 6)
                 )
+            #check if "FastHenry" collection exist
+            FastHenry_col_found = False
             for col in bpy.data.collections:
                 if col.name == 'FastHenry':
                     FastHenry_col_found = True
@@ -309,10 +321,9 @@ class BFH_OP_result_draw(bpy.types.Operator):
                     self.mutual_obj_index = 1
                     
             if FastHenry_col_found == False:
-                print("no FastHenry Collection")
                 #bpy.types.SpaceView3D.draw_handler_remove(self._handle_px 'WINDOW')
                 #bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv 'WINDOW')
-                self.report({'WARNING'}, "Active space must be a View3d")
+                self.report({'WARNING'}, "No FastHenry Collection")
                 return {'CANCELLED'}
             
             ### get data from csv files 
