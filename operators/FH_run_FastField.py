@@ -1,6 +1,7 @@
 import os
 import sys 
 import bpy #type: ignore
+import numpy as np
 
 import win32com.client
 import win32api
@@ -18,25 +19,36 @@ def run_FastField(self, context):
 
     FastHenry2.Run(basedir + "\\" + my_properties.INP_file_name + ".inp")
 
-    running = FastHenry2.IsRunning
+    #running = FastHenry2.IsRunning
     while FastHenry2.IsRunning:
         win32api.Sleep(100)
 
-    Frequencies = FastHenry2.GetFrequencies
-    R = FastHenry2.GetResistance
-    L = FastHenry2.getInductance
+    frequency = np.array(FastHenry2.GetFrequencies)
+    resistance = np.array(FastHenry2.GetResistance)
+    inductance = np.array(FastHenry2.getInductance)
 
-    #set all values to zero
-    for i in range(5):
-        my_properties.frequency_list[i] = 0
-        my_properties.resistance_result[i] = 0
-        my_properties.inductance_result[i] = 0
+    #write results in a text file, this is so that when opening a Blender FastHenry scene we can display results (if the simulation was done previously) without having to rerun the simultion
 
-    #now insert new results
-    for i in range(len(Frequencies)):
-        my_properties.frequency_list[i] = Frequencies[i]
-        my_properties.resistance_result[i] = L[i][0][0]
-        my_properties.inductance_result[i] = L[i][0][0]
+    if os.path.exists("frequency.csv"):
+        os.remove("frequency.csv")
+
+    if os.path.exists("resistance.csv"):
+        os.remove("resistance.csv")
+
+    if os.path.exists("inductance.csv"):
+        os.remove("inductance.csv")
+
+    with open("frequency.csv", "ab") as f:
+        np.savetxt(f, frequency, delimiter=",")
+
+    with open("resistance.csv", "ab") as f:
+        for i in range(len(frequency)):
+            np.savetxt(f, resistance[i], delimiter=",",  header=str(frequency[i]))
+
+    with open("inductance.csv", "ab") as f:
+        for i in range(len(frequency)):
+            np.savetxt(f, inductance[i], delimiter=",",  header=str(frequency[i]))
+
 
 class BFH_OP_run_FastHenry(bpy.types.Operator):
     """Tooltip"""
@@ -48,5 +60,17 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
     #     return context.active_object is not None
 
     def execute(self, context):
-        run_FastField(self, context)
+        #check if FastHenry collection exist
+        FastHenry_col_found = False
+        for col in bpy.data.collections:
+            if col.name == 'FastHenry':
+                FastHenry_col_found = True
+                self.FastHenry_col = col
+        
+        if FastHenry_col_found == False:
+            print("No FastHenry Collection")
+            self.report({'WARNING'}, "No FastHenry Collection")
+            return {'CANCELLED'}
+        else:
+            run_FastField(self, context)
         return {'FINISHED'}

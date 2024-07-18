@@ -22,51 +22,54 @@ def create_inp(self, context):
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
 
-    
-    #selected_object = bpy.context.selected_objects[0]
-    bpy.ops.object.duplicate() #duplicate object
-    selected_object = bpy.context.selected_objects[0] #assign duplicated object
-    
-
-    if my_properties.overide_geonodes == False:
-    #get width and height from geonode group of select object
-        w = selected_object.modifiers["BFH_curve"]["Socket_2"] 
-        h = selected_object.modifiers["BFH_curve"]["Socket_3"]
-    else:
-        w=0.1 #width
-        h=0.1 #height
-
-    #bpy.ops.object.delete_all_modifiers() #delete all modifiers
-    bpy.ops.object.modifier_remove(modifier='BFH_curve')
-    bpy.ops.object.convert(target='MESH') #convert to mesh
-
-    #get vertices of selected object
-    object_vertices = selected_object.data.vertices
-    #object_vertices = bpy.ops.object.data.vertices
-    vertex_coordinates = []
-
-    for vertex in object_vertices:
-        vertex_coordinates.append(vertex.co)
-
-
     textfile = open(my_properties.INP_file_name + ".inp", "w")
     textfile.write('* Blender Fast Henry Output' + '\n') #fast henry format first line must contain a comment
     textfile.write('.units ' + units +  '\n')
-    textfile.write('.default' + ' z='+str(zdefault) + ' sigma='+str(sigma) + ' nhinc='+str(nhinc) + ' nwinc='+str(nwinc) + ' rh='+str(rh) + ' rw='+str(rw) + '\n')
+    textfile.write('.default z={} sigma={} nhinc={} nwinc={} rh={} rw={} \n' .format(zdefault, sigma, nhinc, nwinc, rh, rw))
+  
+    node_index = 1
+    element_index = 1
+    
+    for obj in self.FastHenry_col.objects:
+        obj_mesh = obj.to_mesh()
 
-    for indx, co in enumerate(vertex_coordinates):
-        textfile.write('N' + str(indx+1) + ' x=' + str(co.x) + ' y=' + str(co.y) + ' z=' + str(co.z) + '\n' ) 
+        if my_properties.overide_geonodes == False:
+        #get width and height from geonode group of select object
+            w = obj.modifiers["BFH_curve"]["Socket_2"] 
+            h = obj.modifiers["BFH_curve"]["Socket_3"]
+        else:
+            w=0.1 #width
+            h=0.1 #height
 
+    #get vertices of selected object
+        object_vertices = obj_mesh.vertices
+        mat_world = obj.matrix_world
+        vertex_co_global = []
 
-    for i in range(len(vertex_coordinates)-1):
-        textfile.write('E' + str(i+1) + ' N' + str(i+1) + ' N' + str(i+2) + ' w=' + str(w) + ' h=' + str(h) + '\n') 
+        for vertex in object_vertices:
+            vertex_co_global.append(mat_world @ vertex.co)
 
-    textfile.write('.external ' + 'N1 ' + 'N' + str(len(vertex_coordinates)) + '\n')
-    textfile.write('.freq' + ' fmin=' + str(fmin) + ' fmax=' + str(fmax) + ' ndec=' + str(ndec) + '\n')
+        first_node_index = node_index
+        last_node_index = node_index + len(vertex_co_global)-1
+        ###NODES
+        textfile.write('* NODES \n')
+        for co in vertex_co_global:
+            textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
+            node_index +=1
+
+        ###ELEMENTS
+        textfile.write('* SEGMENTS \n')
+        for i in range(len(vertex_co_global)-1):
+            textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
+            element_index +=1
+
+        ###PORT
+        textfile.write('* PORTS \n')
+        textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
+
+    ###FREQUENCY RANGE
+    textfile.write('.freq' + ' fmin=' + str(int(fmin)) + ' fmax=' + str(int(fmax)) + ' ndec=' + str(ndec) + '\n')
     textfile.write('.end')
-
-    bpy.ops.object.delete(use_global=False)
-
 
 class BFH_OP_create_inp(bpy.types.Operator):
     """Tooltip"""
@@ -78,12 +81,18 @@ class BFH_OP_create_inp(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-
-        if bpy.context.selected_objects[0].type == 'CURVE':
-            if len(bpy.context.selected_objects) != 0:
-                create_inp(self, context)
-                return {'FINISHED'}
+        #check if FastHenry collection exist
+        FastHenry_col_found = False
+        for col in bpy.data.collections:
+            if col.name == 'FastHenry':
+                FastHenry_col_found = True
+                self.FastHenry_col = col
         
+        if FastHenry_col_found == False:
+            print("No FastHenry Collection")
+            self.report({'WARNING'}, "No FastHenry Collection")
+            return {'CANCELLED'}
+        else:
+            create_inp(self, context)
+            return {'FINISHED'}
 
-        self.report({'WARNING'}, "Object must be curve")
-        return {'CANCELLED'}

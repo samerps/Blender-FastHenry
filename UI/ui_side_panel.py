@@ -29,4 +29,6 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.operator("object.bfh_run_fastfield", text ="Run FastHenry")
         col.operator("view3d.bfh_draw_operator", text ="Display Results")
         col.operator("object.bfh_run_all", text ="Run All")
+
+        col.prop(my_properties, 'text_size', text = "Text Size")
        
