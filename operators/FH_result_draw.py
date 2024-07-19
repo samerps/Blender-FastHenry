@@ -313,10 +313,8 @@ class BFH_OP_result_draw(bpy.types.Operator):
             for col in bpy.data.collections:
                 if col.name == 'FastHenry':
                     FastHenry_col_found = True
-                    #print(FastHenry_col_found)
                     self.FastHenry_col = col
                     self.no_of_objs = len(col.objects)
-                    #print(self.no_of_objs)
                     self.obj_index = 0
                     self.mutual_obj_index = 1
                     
