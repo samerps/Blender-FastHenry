@@ -110,12 +110,13 @@ class BFH_OP_create_inp(bpy.types.Operator):
                 FastHenry_col_found = True
                 self.FastHenry_col = col
         
+        self.FastHenry_col = my_properties.curve_collection
         self.plane_col = my_properties.plane_collection
 
-        if FastHenry_col_found == False:
-            print("No FastHenry Collection")
-            self.report({'WARNING'}, "No FastHenry Collection")
+        if self.FastHenry_col is None:
+            self.report({'WARNING'}, "Empty Collection")
             return {'CANCELLED'}
+
         else:
             create_inp(self, context)
             return {'FINISHED'}

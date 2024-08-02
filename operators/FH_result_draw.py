@@ -308,21 +308,29 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 (0, 4), (4, 5), (5, 1),
                 (4, 7), (5, 6)
                 )
-            #check if "FastHenry" collection exist
-            FastHenry_col_found = False
-            for col in bpy.data.collections:
-                if col.name == 'FastHenry':
-                    FastHenry_col_found = True
-                    self.FastHenry_col = col
-                    self.no_of_objs = len(col.objects)
-                    self.obj_index = 0
-                    self.mutual_obj_index = 1
+            # #check if "FastHenry" collection exist
+            # FastHenry_col_found = False
+            # for col in bpy.data.collections:
+            #     if col.name == 'FastHenry':
+            #         FastHenry_col_found = True
+            #         self.FastHenry_col = col
+            #         self.no_of_objs = len(col.objects)
+            #         self.obj_index = 0
+            #         self.mutual_obj_index = 1
                     
-            if FastHenry_col_found == False:
-                #bpy.types.SpaceView3D.draw_handler_remove(self._handle_px 'WINDOW')
-                #bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv 'WINDOW')
-                self.report({'WARNING'}, "No FastHenry Collection")
+            # if FastHenry_col_found == False:
+            #     #bpy.types.SpaceView3D.draw_handler_remove(self._handle_px 'WINDOW')
+            #     #bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv 'WINDOW')
+            #     self.report({'WARNING'}, "No FastHenry Collection")
+            #     return {'CANCELLED'}
+            if self.FastHenry_col is None:
+                self.report({'WARNING'}, "Empty Collection")
                 return {'CANCELLED'}
+            else:
+                self.FastHenry_col = col
+                self.no_of_objs = len(col.objects)
+                self.obj_index = 0
+                self.mutual_obj_index = 1
             
             ### get data from csv files 
             self.frequency, self.resistance , self.inductance = read_csv_data.read_csv_data()
