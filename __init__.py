@@ -33,13 +33,15 @@ def register():
     for blender_class in blender_classes:
         bpy.utils.register_class(blender_class)
 
-    bpy.types.WindowManager.BFH_properties = bpy.props.PointerProperty(type=property_group.BFH_property_group)
+    #bpy.types.WindowManager.BFH_properties = bpy.props.PointerProperty(type=property_group.BFH_property_group) #note using WndowManager will not save values in blend file
+    bpy.types.Scene.BFH_properties = bpy.props.PointerProperty(type=property_group.BFH_property_group)
 
 def unregister():
     for blender_class in blender_classes:
         bpy.utils.unregister_class(blender_class)
 
-    del bpy.types.WindowManager.BFH_properties
+    #del bpy.types.WindowManager.BFH_properties
+    del bpy.types.Scene.BFH_properties
 
 if __name__ == "__main__":
     register()

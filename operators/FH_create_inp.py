@@ -6,7 +6,7 @@ import os
 from ..functions import reject_objects
 
 def create_inp(self, context):
-    my_properties = context.window_manager.BFH_properties
+    my_properties = context.scene.BFH_properties
     #Fast Henry parameters#
     fmin = my_properties.fmin*1e6
     fmax = my_properties.fmax*1e6
@@ -120,7 +120,7 @@ class BFH_OP_create_inp(bpy.types.Operator):
 
     def execute(self, context):
         #check if FastHenry collection exist
-        my_properties = context.window_manager.BFH_properties
+        my_properties = context.scene.BFH_properties
         # FastHenry_col_found = False
         # for col in bpy.data.collections:
         #     if col.name == 'FastHenry':

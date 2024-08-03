@@ -41,7 +41,7 @@ def obj_bounds(obj):
 
 def draw_callback_px(self, context):
     
-    my_properties = context.window_manager.BFH_properties
+    my_properties = context.scene.BFH_properties
     font_id = 0 
 
     ### draw background
@@ -282,7 +282,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
     def invoke(self, context, event):
 
         if context.area.type == 'VIEW_3D':
-            my_properties = context.window_manager.BFH_properties
+            my_properties = context.scene.BFH_properties
             # the arguments we pass the the callback
             args = (self, context)
             

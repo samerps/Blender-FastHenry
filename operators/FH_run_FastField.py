@@ -7,7 +7,7 @@ import win32com.client
 import win32api
 
 def run_FastField(self, context):
-    my_properties = context.window_manager.BFH_properties
+    my_properties = context.scene.BFH_properties
     FastHenry2 = win32com.client.Dispatch("FastHenry2.Document")
     #pathStr = os.getcwd()
     #pathStr = "C:\\Users\\samer\\Downloads\\FastHenry"
@@ -60,17 +60,6 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
     #     return context.active_object is not None
 
     def execute(self, context):
-        #check if FastHenry collection exist
-        FastHenry_col_found = False
-        for col in bpy.data.collections:
-            if col.name == 'FastHenry':
-                FastHenry_col_found = True
-                self.FastHenry_col = col
-        
-        if FastHenry_col_found == False:
-            print("No FastHenry Collection")
-            self.report({'WARNING'}, "No FastHenry Collection")
-            return {'CANCELLED'}
-        else:
-            run_FastField(self, context)
+        #check if FastHenry inp file exist
+        run_FastField(self, context)
         return {'FINISHED'}

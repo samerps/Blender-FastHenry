@@ -9,7 +9,7 @@ class BFH_PT_sidebar(bpy.types.Panel):
     bl_category = "Blender FH"
 
     def draw(self, context):
-        my_properties = context.window_manager.BFH_properties
+        my_properties = context.scene.BFH_properties
         col = self.layout.column(align=True)
         
         col.prop(my_properties, 'curve_collection', text ="Curve Col.")
