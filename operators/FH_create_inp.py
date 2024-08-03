@@ -74,18 +74,34 @@ def create_inp(self, context):
     textfile.write('* Planes \n')
     if self.plane_col:
         for j, obj in enumerate(self.plane_col.objects):
-            if obj.type == 'MESH' and len(obj.data.vertices) == 4:
-                obj_vertices = obj.data.vertices
-                mat_world = obj.matrix_world
-                mat_world @ vertex.co
+            obj = bpy.context.object.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+            vert0 = obj.attributes['vert0'].data[0].vector
+            vert1 = obj.attributes['vert1'].data[0].vector
+            vert3 = obj.attributes['vert3'].data[0].vector
+
+            print(vert0, vert1, vert3)
+            
+            textfile.write('GFHPlane{} \n' .format(j))
+            textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
+            textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
+            textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
+            textfile.write('+ thick = 0.05 \n')
+            textfile.write('+ seg1 = 20 seg2 = 20 \n')
+            
+
+
+            # if obj.type == 'MESH' and len(obj.data.vertices) == 4:
+            #     obj_vertices = obj.data.vertices
+            #     mat_world = obj.matrix_world
+            #     mat_world @ vertex.co
                 
-                textfile.write('GFHPlane{} \n' .format(j))
-                for i in [0, 1, 3]:
-                    co_global = mat_world @ obj_vertices[i].co
-                    textfile.write('+ x{}={} y{}={} z{}={} \n' .format(i+1 if i!=3 else 3, co_global.x, i+1 if i!=3 else 3, co_global.y, i+1 if i!=3 else 3, co_global.z ))
+            #     textfile.write('GFHPlane{} \n' .format(j))
+            #     for i in [0, 1, 3]:
+            #         co_global = mat_world @ obj_vertices[i].co
+            #         textfile.write('+ x{}={} y{}={} z{}={} \n' .format(i+1 if i!=3 else 3, co_global.x, i+1 if i!=3 else 3, co_global.y, i+1 if i!=3 else 3, co_global.z ))
                 
-                textfile.write('+ thick = 0.05 \n')
-                textfile.write('+ seg1 = 20 seg2 = 20 \n')
+            #     textfile.write('+ thick = 0.05 \n')
+            #     textfile.write('+ seg1 = 20 seg2 = 20 \n')
 
 
     
