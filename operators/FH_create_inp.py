@@ -3,6 +3,7 @@
 
 import bpy #type: ignore
 import os 
+from ..functions import reject_objects
 
 def create_inp(self, context):
     my_properties = context.window_manager.BFH_properties
@@ -104,20 +105,23 @@ class BFH_OP_create_inp(bpy.types.Operator):
     def execute(self, context):
         #check if FastHenry collection exist
         my_properties = context.window_manager.BFH_properties
-        FastHenry_col_found = False
-        for col in bpy.data.collections:
-            if col.name == 'FastHenry':
-                FastHenry_col_found = True
-                self.FastHenry_col = col
+        # FastHenry_col_found = False
+        # for col in bpy.data.collections:
+        #     if col.name == 'FastHenry':
+        #         FastHenry_col_found = True
+        #         self.FastHenry_col = col
         
         self.FastHenry_col = my_properties.curve_collection
         self.plane_col = my_properties.plane_collection
+
+       
 
         if self.FastHenry_col is None:
             self.report({'WARNING'}, "Empty Collection")
             return {'CANCELLED'}
 
         else:
+            reject_objects.reject_objects(self, context, my_properties)
             create_inp(self, context)
             return {'FINISHED'}
 

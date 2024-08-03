@@ -327,8 +327,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 self.report({'WARNING'}, "Empty Collection")
                 return {'CANCELLED'}
             else:
-                self.FastHenry_col = col
-                self.no_of_objs = len(col.objects)
+                self.FastHenry_col = my_properties.curve_collection
+                for obj in self.FastHenry_col:
+                    if obj.type == 'CURVE':
+                        self.no_of_objs +=1
+                #self.no_of_objs = len(self.FastHenry_col.objects)
                 self.obj_index = 0
                 self.mutual_obj_index = 1
             
@@ -342,7 +345,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
             
             #check if csv data matches the number of the objects in FastHenry collection, pick resistance or inductance
             if len(self.resistance[0][:]) != self.no_of_objs:
-                self.report({'WARNING'}, "CSV data does not match number of objects")
+                self.report({'WARNING'}, "CSV data does not match number of objects, probably outdated")
                 return {'CANCELLED'}
             
             # Add the region OpenGL drawing callback
