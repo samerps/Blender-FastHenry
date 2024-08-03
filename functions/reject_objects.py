@@ -13,16 +13,23 @@ def reject_objects(self, context, properties):
     
     reject_col = bpy.data.collections['Rejected']
 
-    
 
     for obj in FastHenry_col.objects:
+        #check if obj is CURVE
         if obj.type != 'CURVE':
             obj.select_set(True)
             FastHenry_col.objects.unlink(obj)
             reject_col.objects.link(obj)
-            #bpy.context.view_layer.objects.active = obj
-            #bpy.ops.object.move_to_collection(collection_index=1)
-            #bpy.ops.object.move_to_collection(collection_index=0, is_new = True, new_collection_name='Rejected')
+
+        #check if obj has the correct modifer 
+        mod_exist = False
+        for mod in obj.modifiers:
+            if mod.name == 'BFH_curve':
+                mod_exist = True
+        if not mod_exist:
+            FastHenry_col.objects.unlink(obj)
+            reject_col.objects.link(obj)
+
 
             
         
