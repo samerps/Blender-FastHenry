@@ -39,6 +39,10 @@ class BFH_property_group(bpy.types.PropertyGroup):
     curve_collection: PointerProperty(type=bpy.types.Collection) #type: ignore
     plane_collection: PointerProperty(type=bpy.types.Collection) #type: ignore
 
+    FH_running: BoolProperty(name= "FH running", default = False) #type: ignore
+    FH_finished: BoolProperty(name= "FH finished", default = False) #type: ignore
+
+
     
 
 

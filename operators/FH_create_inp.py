@@ -80,7 +80,7 @@ def create_inp(self, context):
             #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
             seg1 = obj.modifiers["BFH_plane"]["Socket_8"]    
             seg2 = obj.modifiers["BFH_plane"]["Socket_10"]
-            thick = obj.modifiers["BFH_plane"]["Socket_9"]
+            thickness = obj.modifiers["BFH_plane"]["Socket_9"]
 
             obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
             vert0 = obj.attributes['vert0'].data[0].vector
@@ -91,7 +91,7 @@ def create_inp(self, context):
             textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
             textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
             textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
-            textfile.write('+ thick = {} \n' .format(thick))
+            textfile.write('+ thick = {} \n' .format(thickness))
             textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
             
     
@@ -119,8 +119,6 @@ class BFH_OP_create_inp(bpy.types.Operator):
         
         self.FastHenry_col = my_properties.curve_collection
         self.plane_col = my_properties.plane_collection
-
-       
 
         if self.FastHenry_col is None:
             self.report({'WARNING'}, "Empty Collection")
