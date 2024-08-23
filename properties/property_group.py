@@ -1,6 +1,6 @@
 import os
 import bpy #type: ignore
-from bpy.props import FloatVectorProperty, FloatProperty, FloatVectorProperty, BoolProperty, IntProperty, StringProperty #type: ignore
+from bpy.props import FloatVectorProperty, FloatProperty, FloatVectorProperty, BoolProperty, IntProperty, StringProperty, PointerProperty #type: ignore
 
 import bpy.utils.previews #type: ignore
 
@@ -35,6 +35,13 @@ class BFH_property_group(bpy.types.PropertyGroup):
     default = "cm")
 
     text_size: FloatProperty(name="text size", min = 0.1, max = 1, default = 0.5)         #type: ignore
+
+    curve_collection: PointerProperty(type=bpy.types.Collection) #type: ignore
+    plane_collection: PointerProperty(type=bpy.types.Collection) #type: ignore
+
+    FH_running: BoolProperty(name= "FH running", default = False) #type: ignore
+    FH_finished: BoolProperty(name= "FH finished", default = False) #type: ignore
+
 
     
 

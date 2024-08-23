@@ -3,9 +3,10 @@
 
 import bpy #type: ignore
 import os 
+from ..functions import reject_objects
 
 def create_inp(self, context):
-    my_properties = context.window_manager.BFH_properties
+    my_properties = context.scene.BFH_properties
     #Fast Henry parameters#
     fmin = my_properties.fmin*1e6
     fmax = my_properties.fmax*1e6
@@ -31,42 +32,69 @@ def create_inp(self, context):
     element_index = 1
     
     for obj in self.FastHenry_col.objects:
-        obj_mesh = obj.to_mesh()
+        if obj.type == 'CURVE':
+            obj_mesh = obj.to_mesh()
 
-        if my_properties.overide_geonodes == False:
-        #get width and height from geonode group of select object
-            w = obj.modifiers["BFH_curve"]["Socket_2"] 
-            h = obj.modifiers["BFH_curve"]["Socket_3"]
-        else:
-            w=0.1 #width
-            h=0.1 #height
+            if my_properties.overide_geonodes == False:
+            #get width and height from geonode group of select object
+                w = obj.modifiers["BFH_curve"]["Socket_2"] 
+                h = obj.modifiers["BFH_curve"]["Socket_3"]
+            else:
+                w=0.1 #width
+                h=0.1 #height
 
-    #get vertices of selected object
-        object_vertices = obj_mesh.vertices
-        mat_world = obj.matrix_world
-        vertex_co_global = []
+            #get vertices of selected object
+            object_vertices = obj_mesh.vertices
+            mat_world = obj.matrix_world
+            vertex_co_global = []
 
-        for vertex in object_vertices:
-            vertex_co_global.append(mat_world @ vertex.co)
+            for vertex in object_vertices:
+                vertex_co_global.append(mat_world @ vertex.co)
 
-        first_node_index = node_index
-        last_node_index = node_index + len(vertex_co_global)-1
-        ###NODES
-        textfile.write('* NODES \n')
-        for co in vertex_co_global:
-            textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
-            node_index +=1
+            first_node_index = node_index
+            last_node_index = node_index + len(vertex_co_global)-1
+            ###NODES
+            textfile.write('* NODES \n')
+            for co in vertex_co_global:
+                textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
+                node_index +=1
 
-        ###ELEMENTS
-        textfile.write('* SEGMENTS \n')
-        for i in range(len(vertex_co_global)-1):
-            textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
-            element_index +=1
+            ###ELEMENTS
+            textfile.write('* SEGMENTS \n')
+            for i in range(len(vertex_co_global)-1):
+                textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
+                element_index +=1
+            
+            ###PORT
+            textfile.write('* PORTS \n')
+            textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
 
-        ###PORT
-        textfile.write('* PORTS \n')
-        textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
+            obj.to_mesh_clear()
 
+
+    ##planes
+    textfile.write('* Planes \n')
+    if self.plane_col:
+        for j, obj in enumerate(self.plane_col.objects):
+            
+            #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
+            seg1 = obj.modifiers["BFH_plane"]["Socket_8"]    
+            seg2 = obj.modifiers["BFH_plane"]["Socket_10"]
+            thickness = obj.modifiers["BFH_plane"]["Socket_9"]
+
+            obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+            vert0 = obj.attributes['vert0'].data[0].vector
+            vert1 = obj.attributes['vert1'].data[0].vector
+            vert3 = obj.attributes['vert3'].data[0].vector
+  
+            textfile.write('GFHPlane{} \n' .format(j))
+            textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
+            textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
+            textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
+            textfile.write('+ thick = {} \n' .format(thickness))
+            textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
+            
+    
     ###FREQUENCY RANGE
     textfile.write('.freq' + ' fmin=' + str(int(fmin)) + ' fmax=' + str(int(fmax)) + ' ndec=' + str(ndec) + '\n')
     textfile.write('.end')
@@ -82,17 +110,22 @@ class BFH_OP_create_inp(bpy.types.Operator):
 
     def execute(self, context):
         #check if FastHenry collection exist
-        FastHenry_col_found = False
-        for col in bpy.data.collections:
-            if col.name == 'FastHenry':
-                FastHenry_col_found = True
-                self.FastHenry_col = col
+        my_properties = context.scene.BFH_properties
+        # FastHenry_col_found = False
+        # for col in bpy.data.collections:
+        #     if col.name == 'FastHenry':
+        #         FastHenry_col_found = True
+        #         self.FastHenry_col = col
         
-        if FastHenry_col_found == False:
-            print("No FastHenry Collection")
-            self.report({'WARNING'}, "No FastHenry Collection")
+        self.FastHenry_col = my_properties.curve_collection
+        self.plane_col = my_properties.plane_collection
+
+        if self.FastHenry_col is None:
+            self.report({'WARNING'}, "Empty Collection")
             return {'CANCELLED'}
+
         else:
+            reject_objects.reject_objects(self, context, my_properties)
             create_inp(self, context)
             return {'FINISHED'}
 

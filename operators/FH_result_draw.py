@@ -8,7 +8,7 @@ import os
 import numpy as np
 import mathutils #type: ignore
 from gpu_extras.batch import batch_for_shader #type: ignore
-from ..functions import read_Zc, read_csv_data
+from ..functions import read_Zc, read_csv_data, reject_objects
     
 def init():
     font_info = {
@@ -41,7 +41,7 @@ def obj_bounds(obj):
 
 def draw_callback_px(self, context):
     
-    my_properties = context.window_manager.BFH_properties
+    my_properties = context.scene.BFH_properties
     font_id = 0 
 
     ### draw background
@@ -282,7 +282,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
     def invoke(self, context, event):
 
         if context.area.type == 'VIEW_3D':
-            my_properties = context.window_manager.BFH_properties
+            my_properties = context.scene.BFH_properties
             # the arguments we pass the the callback
             args = (self, context)
             
@@ -308,23 +308,17 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 (0, 4), (4, 5), (5, 1),
                 (4, 7), (5, 6)
                 )
-            #check if "FastHenry" collection exist
-            FastHenry_col_found = False
-            for col in bpy.data.collections:
-                if col.name == 'FastHenry':
-                    FastHenry_col_found = True
-                    #print(FastHenry_col_found)
-                    self.FastHenry_col = col
-                    self.no_of_objs = len(col.objects)
-                    #print(self.no_of_objs)
-                    self.obj_index = 0
-                    self.mutual_obj_index = 1
-                    
-            if FastHenry_col_found == False:
-                #bpy.types.SpaceView3D.draw_handler_remove(self._handle_px 'WINDOW')
-                #bpy.types.SpaceView3D.draw_handler_remove(self._handle_pv 'WINDOW')
-                self.report({'WARNING'}, "No FastHenry Collection")
+             #check if curve collection is set, check for non-compatible objects in collection, check if length of CSV results match number of objects
+
+            if my_properties.curve_collection is None:
+                self.report({'WARNING'}, "Empty Collection")
                 return {'CANCELLED'}
+            else:
+                self.FastHenry_col = my_properties.curve_collection
+                reject_objects.reject_objects(self, context, my_properties)
+                self.no_of_objs = len(self.FastHenry_col.objects)
+                self.obj_index = 0
+                self.mutual_obj_index = 1
             
             ### get data from csv files 
             self.frequency, self.resistance , self.inductance = read_csv_data.read_csv_data()
@@ -336,7 +330,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
             
             #check if csv data matches the number of the objects in FastHenry collection, pick resistance or inductance
             if len(self.resistance[0][:]) != self.no_of_objs:
-                self.report({'WARNING'}, "CSV data does not match number of objects")
+                self.report({'WARNING'}, "CSV data does not match number of objects, probably outdated")
                 return {'CANCELLED'}
             
             # Add the region OpenGL drawing callback

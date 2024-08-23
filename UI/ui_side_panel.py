@@ -9,8 +9,11 @@ class BFH_PT_sidebar(bpy.types.Panel):
     bl_category = "Blender FH"
 
     def draw(self, context):
-        my_properties = context.window_manager.BFH_properties
+        my_properties = context.scene.BFH_properties
         col = self.layout.column(align=True)
+        
+        col.prop(my_properties, 'curve_collection', text ="Curve Col.")
+        col.prop(my_properties, 'plane_collection', text ="Plane Col.")
         col.prop(my_properties, 'INP_file_name', text = "INP File Name")
         col.prop(my_properties, 'units_enum', text = "units")
         col.prop(my_properties, 'fmin', text ="fmin (MHz)")
@@ -31,4 +34,6 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.operator("object.bfh_run_all", text ="Run All")
 
         col.prop(my_properties, 'text_size', text = "Text Size")
+
+
        
