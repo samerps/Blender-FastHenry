@@ -139,6 +139,24 @@ def draw_callback_px(self, context):
             xpos += text_width * 1.25
             blf.position(font_id, xpos, ypos, 0)
 
+    ### draw plane texts
+    xpos += text_width
+    xpos_store = xpos 
+    #xpos_m += text_width 
+    ypos = self.text_pos[1]-text_height*1.25
+    line_text = "No. of Planes: "
+    blf.color(font_id, 1, 1, 1, 1) #white
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, dummy = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+
+    xpos += text_width * 1
+    line_text = str(self.plane_count)
+    blf.color(font_id, 0, 0.5, 1, 1) #blue
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, dummy = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+
 
 def draw_callback_pv(self, context):   
     #draw bounding boxes 
@@ -169,6 +187,14 @@ def draw_callback_pv(self, context):
         shader.uniform_float("color", (1, 1, 0, 1)) #yellow   
         batch.draw(shader)
 
+    #draw boundboxes for planes
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    shader.uniform_float("color", (0, 0.5, 1, 1)) #blue
+    for obj in self.FastHenry_plane_col.objects:
+        plane_bound_coords = obj_bounds(obj)
+        batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
+        batch.draw(shader)
+
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
@@ -196,7 +222,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
                 self.mutual_bound_coords = obj_bounds(mutual_obj)
                 self.mutual_obj_name_to_display = mutual_obj.name
-                    
+
+            ### planes
+            self.plane_count = len(self.FastHenry_plane_col.objects)
+
         ####
         #prepare self-resistance and self-inductance for displaying for each frequency 
         self.frequency_display = []
@@ -315,6 +344,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 return {'CANCELLED'}
             else:
                 self.FastHenry_col = my_properties.curve_collection
+                self.FastHenry_plane_col = my_properties.plane_collection
                 reject_objects.reject_objects(self, context, my_properties)
                 self.no_of_objs = len(self.FastHenry_col.objects)
                 self.obj_index = 0
