@@ -13,15 +13,17 @@ class BFH_OP_result_draw(bpy.types.Operator):
     #     return context.active_object is not None
 
     def execute(self, context):
+
+        my_properties = context.scene.BFH_properties
         
         #run create INP file operator
         bpy.ops.object.bfh_create_inp()
 
         #run Run FasHenry operator
-        bpy.ops.object.bfh_run_fastfield('EXEC_DEFAULT')
+        bpy.ops.object.bfh_run_fastfield('INVOKE_DEFAULT')
 
-        #run Display Results operator 
-        bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
+        # #run Display Results operator 
+        # bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
 
         return {'FINISHED'}
 
