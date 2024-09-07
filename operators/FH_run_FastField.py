@@ -2,9 +2,17 @@ import os
 import sys 
 import bpy #type: ignore
 import numpy as np
+import gpu #type: ignore
+import blf #type: ignore
+from gpu_extras.batch import batch_for_shader #type: ignore
 
 import win32com.client
 import win32api
+
+#preparing to include draw function to show status of FastHenry
+def draw_callback_px(self, context):
+    pass   
+
 
 def run_FastField(self, context):
     my_properties = context.scene.BFH_properties
