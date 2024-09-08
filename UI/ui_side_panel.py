@@ -19,7 +19,7 @@ class BFH_PT_sidebar(bpy.types.Panel):
         box = layout.box()
         col = box.column(align = True)
         col.label(text="Blender FastHenry")
-        col.label(text="V 0.0.1")
+        col.label(text="V 1.0.0")
 
         ####collections
         box = layout.box()
