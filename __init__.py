@@ -1,13 +1,13 @@
-bl_info = {
-    "name": "Blender Fast Henry",
-    "author": "Samer Aldhaher",
-    "version": (1, 0),
-    "blender": (4, 1, 0),
-    "location": "N Panel",
-    "description": "Blender Fast Henry interface",
-    "warning": "",
-    "doc_url": ""
-}
+# bl_info = {
+#     "name": "Blender Fast Henry",
+#     "author": "Samer Aldhaher",
+#     "version": (1, 0),
+#     "blender": (4, 1, 0),
+#     "location": "N Panel",
+#     "description": "Blender Fast Henry interface",
+#     "warning": "",
+#     "doc_url": ""
+# }
 
 import bpy #type: ignore
 from .operators import FH_result_draw
