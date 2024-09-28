@@ -71,7 +71,7 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
         print("this is execute")
 
     def invoke(self, context, event):
-        print("this is invoke")
+        #print("this is invoke")
         my_properties = context.scene.BFH_properties
         my_properties.FH_running = False
         my_properties.FH_finished = False

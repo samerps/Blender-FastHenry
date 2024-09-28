@@ -190,10 +190,11 @@ def draw_callback_pv(self, context):
     #draw boundboxes for planes
     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     shader.uniform_float("color", (0, 0.5, 1, 1)) #blue
-    for obj in self.FastHenry_plane_col.objects:
-        plane_bound_coords = obj_bounds(obj)
-        batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
-        batch.draw(shader)
+    if self.plane_count > 0:
+        for obj in self.FastHenry_plane_col.objects:
+            plane_bound_coords = obj_bounds(obj)
+            batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
+            batch.draw(shader)
 
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
@@ -224,7 +225,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 self.mutual_obj_name_to_display = mutual_obj.name
 
             ### planes
-            self.plane_count = len(self.FastHenry_plane_col.objects)
+            if self.FastHenry_plane_col is None:
+                self.plane_count = 0
+            else:
+                self.plane_count = len(self.FastHenry_plane_col.objects)
 
         ####
         #prepare self-resistance and self-inductance for displaying for each frequency 
