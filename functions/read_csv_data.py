@@ -1,79 +1,83 @@
 import os
-import bpy
-import numpy as np
+import bpy  #type: ignore
+import numpy as np  #type: ignore 
 
 ### function to read data from csv files
 def read_csv_data():
 
+
+    # Read the CSV file
+    # Initialize lists to hold frequency groups, resistances, and inductances
+    frequencies = []
+    current_group_resistances = []
+    current_group_inductances = []
+    all_resistances = []
+    all_inductances = []
+
+
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
+    file_path = os.path.join(basedir, "Zc.csv")
 
-    ###read frequency csv file  
-    arrays_list = []
-    frequency = []
-    resistance = []
-    inductance = []
-
-    #check if files exist
-    if os.path.exists("frequency.csv") == False:
-        return frequency, resistance, inductance
-    if os.path.exists("resistance.csv") == False:
-        return frequency, resistance, inductance
-    if os.path.exists("inductance.csv") == False:
-        return frequency, resistance, inductance
+    # check if files exist
+    if os.path.exists("Zc.csv") == False:
+        return frequencies, all_resistances, all_inductances
     
-    with open('frequency.csv', 'r') as csvfile:
-        for row in csvfile:
-            arrays_list.append([float(x) for x in row.strip().split(',')])
-    frequency = np.array(arrays_list)
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
 
-    ###read inductance csv file
-    # Initialize an empty list to store the 2D arrays
-    arrays_list = []
+    # Iterate through each line to process the frequency, resistance, and inductance values
+    for line in lines:
+        # Strip whitespace and split the line by whitespace
+        parts = line.strip().split()
+        
+        # Extract the frequency as float
+        freq = float(parts[0])
+        
+        # Initialize lists to hold resistance and inductance values for the current line
+        resistance_values = []
+        inductance_values = []
 
-    # Placeholder for the current 2D array
-    current_array = []
-    
-    with open('inductance.csv', 'r') as csvfile:
-        for row in csvfile:
-            if row.startswith('#'):  # Check if the row starts with '#'
-                if current_array:  # If there is an existing array, append it to the list
-                    arrays_list.append(np.array(current_array))
-                    current_array = []  # Reset the current array
+        # Iterate over the parts starting from the second value
+        for idx in range(1, len(parts)):
+            value = float(parts[idx].replace('j', ''))
+            if idx % 2 == 1:
+                resistance_values.append(value)  # Real values in even-numbered columns (1-based index)
             else:
-                # Convert strings to floats and split by commas
-                current_array.append([float(x) for x in row.strip().split(',')])
+                inductance_values.append(value)  # Imaginary values in odd-numbered columns (1-based index)
 
-    # Append the last array if not already done
-    if current_array:
-        arrays_list.append(np.array(current_array))
+        # Check if the frequency is the same as the last one in the frequencies list
+        if len(frequencies) == 0 or freq != frequencies[-1]:
+            # If it's a new frequency, save the previous group's resistances and inductances if any
+            if current_group_resistances:
+                all_resistances.append(np.array(current_group_resistances))
+                all_inductances.append(np.array(current_group_inductances))
+                current_group_resistances = []
+                current_group_inductances = []
+            frequencies.append(freq)
+        
+        # Append the resistance and inductance values to the current group
+        current_group_resistances.append(resistance_values)
+        current_group_inductances.append(inductance_values)
 
-    # Convert list of arrays into a single 3D numpy array
-    inductance = np.array(arrays_list)
+    # Append the last group of resistances and inductances
+    if current_group_resistances:
+        all_resistances.append(np.array(current_group_resistances))
+        all_inductances.append(np.array(current_group_inductances))
 
-    ###read resistance csv file 
-    # Initialize an empty list to store the 2D arrays
-    arrays_list = []
+    # Convert the list of frequencies to a numpy array
+    frequency_array = np.array(frequencies)
 
-    # Placeholder for the current 2D array
-    current_array = []
+    # Convert all resistance and inductance groups to numpy arrays
+    all_resistances = [np.array(group) for group in all_resistances]
+    all_inductances = [np.array(group) for group in all_inductances]
 
-    with open('resistance.csv', 'r') as csvfile:
-        for row in csvfile:
-            if row.startswith('#'):  # Check if the row starts with '#'
-                if current_array:  # If there is an existing array, append it to the list
-                    arrays_list.append(np.array(current_array))
-                    current_array = []  # Reset the current array
-            else:
-                # Convert strings to floats and split by commas
-                current_array.append([float(x) for x in row.strip().split(',')])
+    # # Display the frequency array and each resistance/inductance group array
+    # print("Frequency Array:", frequency_array)
+    # for idx, (resistance_group, inductance_group) in enumerate(zip(all_resistances, all_inductances)):
+    #     print(f"Resistance Array for Frequency {frequency_array[idx]}:")
+    #     print(resistance_group)
+    #     print(f"Inductance Array for Frequency {frequency_array[idx]}:")
+    #     print(inductance_group)
 
-    # Append the last array if not already done
-    if current_array:
-        arrays_list.append(np.array(current_array))
-
-    # Convert list of arrays into a single 3D numpy array
-    resistance = np.array(arrays_list)
-
-    return frequency, resistance, inductance
-
+    return frequency_array, all_resistances, all_inductances

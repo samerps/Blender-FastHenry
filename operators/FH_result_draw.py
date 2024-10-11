@@ -5,7 +5,7 @@ import bpy #type: ignore
 import gpu #type: ignore
 import blf #type: ignore
 import os
-import numpy as np
+import numpy as np #type: ignore
 import mathutils #type: ignore
 from gpu_extras.batch import batch_for_shader #type: ignore
 from ..functions import read_Zc, read_csv_data, reject_objects
