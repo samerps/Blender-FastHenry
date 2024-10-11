@@ -78,7 +78,6 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col = box.column(align = True)
         col.label(text="Settings")
         
-        col.prop(my_properties, 'show_fastfield_window',  text = "show FFS window")
         col.prop(my_properties, 'text_size', text = "Text Size")
 
 
