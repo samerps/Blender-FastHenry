@@ -12,7 +12,7 @@
 import bpy #type: ignore
 from .operators import FH_result_draw
 from .operators import FH_create_inp
-from .operators import FH_run_FastField
+from .operators import FH_run_FastHenry
 from .operators import FH_run_all
 from .UI import ui_side_panel
 from .properties import property_group
@@ -26,7 +26,7 @@ blender_classes = [FH_result_draw.BFH_OP_result_draw,
                    FH_create_inp.BFH_OP_create_inp,
                    ui_side_panel.BFH_PT_sidebar,
                    property_group.BFH_property_group,
-                   FH_run_FastField.BFH_OP_run_FastHenry,
+                   FH_run_FastHenry.BFH_OP_run_FastHenry,
                    FH_run_all.BFH_OP_result_draw]
 
 def register():

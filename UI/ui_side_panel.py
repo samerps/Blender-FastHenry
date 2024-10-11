@@ -67,7 +67,7 @@ class BFH_PT_sidebar(bpy.types.Panel):
             box.enabled = False
             text = "FastHenry running..."
     
-        col.operator("object.bfh_run_fastfield", text = text)
+        col.operator("object.bfh_run_fasthenry", text = text)
         col.separator()
         col.operator("view3d.bfh_draw_operator", text ="Display Results")
         col.separator()
