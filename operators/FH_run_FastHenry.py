@@ -106,6 +106,10 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
             my_properties.FH_finished = True
             my_properties.FH_running = False
             print("FastHenry now finished")
+
+            #run display result operator
+            bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
+
             return{'FINISHED'}
         
         else:
