@@ -14,8 +14,6 @@ def draw_callback_px(self, context):
 
 def run_FastHenry(self, context):
     my_properties = context.scene.BFH_properties
-    #basedir = os.path.dirname(bpy.data.filepath)
-    #os.chdir(basedir)
     
     self.output_file = os.path.join(self.basedir, "Zc.csv")
     
@@ -53,10 +51,14 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
         my_properties.FH_running = False
         my_properties.FH_finished = False
 
-
         self.exe_path =  bpy.context.preferences.addons[preferences.__package__].preferences.filepath
-        
 
+        # check exe path defined correctly and file exist
+        if not self.exe_path.endswith('fasthenry.exe') or not os.path.isfile(self.exe_path):
+            self.report({'WARNING'},'FastHenry executable path not defined or incorrect file')
+            return{'CANCELLED'}
+
+        
         self.basedir = os.path.dirname(bpy.data.filepath)
         self.input_file = os.path.join(self.basedir, my_properties.INP_file_name + ".inp")
         os.chdir(self.basedir)
@@ -114,7 +116,8 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
             return{'FINISHED'}
         
         else:
-            print("FastHenry is still running...")
+           #print("FastHenry is still running...")
+           pass
         
         return {'PASS_THROUGH'}
 
