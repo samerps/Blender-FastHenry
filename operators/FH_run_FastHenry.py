@@ -5,7 +5,7 @@ import numpy as np  #type: ignore
 import gpu #type: ignore
 import blf #type: ignore
 from gpu_extras.batch import batch_for_shader #type: ignore
-
+from .. import preferences
 
 #preparing to include draw function to show status of FastHenry
 def draw_callback_px(self, context):
@@ -14,17 +14,12 @@ def draw_callback_px(self, context):
 
 def run_FastHenry(self, context):
     my_properties = context.scene.BFH_properties
-    #basedir = os.path.dirname(bpy.data.filepath)
-    #os.chdir(basedir)
-    
-
-    exe_path = "D:\\GitHub\\FastHenry2-Sam\\bin\\fasthenry.exe"
     
     self.output_file = os.path.join(self.basedir, "Zc.csv")
     
     try:
         # Run the .exe file asynchronously
-        self.process = subprocess.Popen([exe_path, self.input_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.process = subprocess.Popen([self.exe_path, self.input_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # Print a message indicating that the process has started
         print("Executable is running in the background...")
@@ -35,7 +30,6 @@ def run_FastHenry(self, context):
         print(f"An unexpected error occurred: {e}")
     
     # my_properties.FH_finished = True
-
 
 
 class BFH_OP_run_FastHenry(bpy.types.Operator):
@@ -49,6 +43,7 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
     input_file = ""
     output_file = ""
     process = 0
+    exe_path = ""
      
     def invoke(self, context, event):
         
@@ -56,6 +51,14 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
         my_properties.FH_running = False
         my_properties.FH_finished = False
 
+        self.exe_path =  bpy.context.preferences.addons[preferences.__package__].preferences.filepath
+
+        # check exe path defined correctly and file exist
+        if not self.exe_path.endswith('fasthenry.exe') or not os.path.isfile(self.exe_path):
+            self.report({'WARNING'},'FastHenry executable path not defined or incorrect file')
+            return{'CANCELLED'}
+
+        
         self.basedir = os.path.dirname(bpy.data.filepath)
         self.input_file = os.path.join(self.basedir, my_properties.INP_file_name + ".inp")
         os.chdir(self.basedir)
@@ -113,59 +116,8 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
             return{'FINISHED'}
         
         else:
-            print("FastHenry is still running...")
+           #print("FastHenry is still running...")
+           pass
         
         return {'PASS_THROUGH'}
 
-
-
-        # if self.FH_client.IsRunning == True:
-        #     #print("Fast Henry is running")
-        #     my_properties.FH_running = True
-        # else:
-        #     frequency = np.array(self.FH_client.GetFrequencies)
-        #     resistance = np.array(self.FH_client.GetResistance)
-        #     inductance = np.array(self.FH_client.getInductance)
-
-        #     if os.path.exists("frequency.csv"):
-        #         os.remove("frequency.csv")
-
-        #     if os.path.exists("resistance.csv"):
-        #         os.remove("resistance.csv")
-
-        #     if os.path.exists("inductance.csv"):
-        #         os.remove("inductance.csv")
-
-        #     with open("frequency.csv", "ab") as f:
-        #         np.savetxt(f, frequency, delimiter=",")
-
-        #     with open("resistance.csv", "ab") as f:
-        #         for i in range(len(frequency)):
-        #             np.savetxt(f, resistance[i], delimiter=",",  header=str(frequency[i]))
-
-        #     with open("inductance.csv", "ab") as f:
-        #         for i in range(len(frequency)):
-        #             np.savetxt(f, inductance[i], delimiter=",",  header=str(frequency[i]))
-        
-        #     my_properties.FH_finished = True
-        #     my_properties.FH_running = False
-        #     print("Fast Henry now finished")
-
-        
-        # if my_properties.FH_finished:
-        #     my_properties.FH_finished = False
-        #     my_properties.FH_running = False
-            
-        #     #run Display Results operator 
-        #     bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
-
-        #     print("Fast henry modal finished")
-        #     return{'FINISHED'}
-        # elif event.type in {'ESC'}:
-        #     my_properties.FH_finished = False
-        #     my_properties.FH_running = False
-        #     print("Fast henry modal cancelled")
-        #     return{'CANCELLED'}
-        # else:
-        #     return {'PASS_THROUGH'}
-    
