@@ -100,6 +100,8 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
 
     def modal(self, context, event):
         
+        context.area.tag_redraw() 
+        
         my_properties = context.scene.BFH_properties
        
         # Poll the process to check if it is finished
