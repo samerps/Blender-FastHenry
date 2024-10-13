@@ -9,7 +9,19 @@ from .. import preferences
 
 #preparing to include draw function to show status of FastHenry
 def draw_callback_px(self, context):
-    pass   
+
+    ### draw text header
+    font_id = 0 
+    blf.size(font_id, self.text_size)
+    blf.shadow(font_id, 3, 0, 0, 0, 0.5)
+    xpos = self.text_pos[0]
+    ypos = self.text_pos[1]
+    line_text = "FastHenry running..."
+    blf.color(font_id, 1, 1, 1, 1)
+    blf.position(font_id, xpos, ypos, 0)
+    text_width, text_height = blf.dimensions(font_id, line_text)
+    blf.draw(font_id, line_text + " ")
+
  
 
 def run_FastHenry(self, context):
@@ -51,6 +63,8 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
         my_properties.FH_running = False
         my_properties.FH_finished = False
 
+        args = (self, context)
+
         self.exe_path =  bpy.context.preferences.addons[preferences.__package__].preferences.filepath
 
         # check exe path defined correctly and file exist
@@ -71,8 +85,16 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
         run_FastHenry(self, context)
        
         my_properties.FH_running = True
-       
-        context.window_manager.modal_handler_add(self)             
+
+
+        #prepare text and colours for draw function,  based on viewport width and length
+        self.text_pos = [context.area.width/2, 10]
+        self.text_size = my_properties.text_size * context.area.width/50
+        # Add the region OpenGL drawing callback
+        # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
+        self._handle_px = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
+        context.window_manager.modal_handler_add(self)
+      
         return {'RUNNING_MODAL'}
 
 
@@ -110,8 +132,13 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
             my_properties.FH_running = False
             print("FastHenry now finished")
 
+            # remove draw operator
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle_px, 'WINDOW')
+
             #run display result operator
             bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
+
+ 
 
             return{'FINISHED'}
         
