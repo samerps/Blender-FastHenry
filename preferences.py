@@ -14,7 +14,7 @@ class BFH_preferences(AddonPreferences):
     ) # type: ignore
 
     timout: IntProperty(
-        name="simulation time out",
+        name="solver time out (not yet implemented)",
         default = 0
     ) # type: ignore
 
