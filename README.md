@@ -2,11 +2,12 @@
 
 **Samer Aldhaher @samerps 2024**
 
-Blender FastHenry is a Blender extension for creating FastHenry simulations. You can model geometries (curves) and planes, and call FastHenry executable to solve for resistance, inductance and mutual inductance. The results are displayed visually in Blender.
+Blender FastHenry is a Blender 4.2 extension for creating FastHenry simulations. You can model geometries (curves) and planes, and call FastHenry executable to solve for resistance, inductance and mutual inductance. The results are displayed visually in Blender.
 
 This extension uses geometry nodes to set some parameters, such segment width and thickness. It also use geometry nodes to visualize ports and connecting nodes between separate curve objects. 
 
 ## Installation Instructions - Windows 
+- only compatible with **Blender 4.2** and above
 - download extension archive package
 - compile/download `fasthenry.exe` executable from [FastHenry-Sam](https://github.com/samerps/FastHenry2-Sam)
 - drag and drop archive in Blender
@@ -16,7 +17,7 @@ This extension uses geometry nodes to set some parameters, such segment width an
 
 ## Quick Start Guide
 
-- watch YouTube quick start video.
+- watch YouTube quick start video
 - use included predefined curve objects with a geometry node modifier to model objects
 - use included predefined plane objects with a geometry node modifier to model planes
 - move all curves required to be solved in a separate collection
@@ -26,7 +27,7 @@ This extension uses geometry nodes to set some parameters, such segment width an
 
 ## Extension Capabilities 
 
-- Separate curves within the same curve object will be considered as a single coil, the end point of each individual will be automatically  connected to the start point of the next curve. This connection will be visually displayed as a single solid line. 
+- Separate curves within the same curve object will be considered as a single coil, the end point of each individual will be automatically  connected to the start point of the next curve. This connection will be automatically visually displayed as a single solid line. 
 - Multiple curve objects will considered as mutually coupled. 
 - Combine with ElectroMag Nodes to visualize magnetic field.
 
