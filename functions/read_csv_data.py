@@ -1,6 +1,7 @@
 import os
 import bpy  #type: ignore
 import numpy as np  #type: ignore 
+import math
 
 ### function to read data from csv files
 def read_csv_data():
@@ -44,7 +45,7 @@ def read_csv_data():
             if idx % 2 == 1:
                 resistance_values.append(value)  # Real values in even-numbered columns (1-based index)
             else:
-                inductance_values.append(value)  # Imaginary values in odd-numbered columns (1-based index)
+                inductance_values.append(value/(2*math.pi*freq))  # Imaginary values in odd-numbered columns (1-based index)
 
         # Check if the frequency is the same as the last one in the frequencies list
         if len(frequencies) == 0 or freq != frequencies[-1]:

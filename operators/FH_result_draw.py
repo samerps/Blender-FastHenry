@@ -84,8 +84,12 @@ def draw_callback_px(self, context):
         ypos = self.text_pos[1]-text_height*(i+2)*1.25
         blf.position(font_id, xpos, ypos, 0)
         
-        line_text =  "Freq.: " + np.array2string(self.frequency_display[i], precision=3) + " Res.: " + np.array2string(self.resistance_display[i], precision=3) + " Ind.: " + np.array2string(self.inductance_display[i], precision=3)
-        line_text_words = line_text.split()
+        try:
+            line_text =  "Freq.: " + np.array2string(self.frequency_display[i], precision=3) + " Res.: " + np.array2string(self.resistance_display[i], precision=3) + " Ind.: " + np.array2string(self.inductance_display[i], precision=3)
+            line_text_words = line_text.split()
+        except AttributeError:
+            return
+
         
         for word in line_text_words:
             text_width, dummy = blf.dimensions(font_id, word)
@@ -334,6 +338,12 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.background_verts = (background_vert0, background_vert1, background_vert2, background_vert3)
             
             self.first_run = True
+
+            self.obj_name_to_display = " "  #had to define this here, was getting an error saying object has no obj_name_to_display
+            # self.frequency_display = []
+            # self.resistance_display = []
+            # self.inductance_display = []
+
             self.trans_bound_coords = []
             self.indices = (
                 (1, 0), (0, 3), (3, 2), (2, 1),
