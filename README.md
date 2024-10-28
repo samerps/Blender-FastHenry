@@ -16,7 +16,9 @@ This extension uses geometry nodes to set some parameters, such segment width an
 
 *MacOS and Linux versions coming soon*
 
-![preferences](docs/images/preferences.jpgimages)
+![preferences](docs/images/preferences.jpg)
+
+![N panel](docs/images/N%20panel.jpg)
 
 ## Quick Start Guide
 
