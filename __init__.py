@@ -14,6 +14,7 @@ from .operators import FH_result_draw
 from .operators import FH_create_inp
 from .operators import FH_run_FastHenry
 from .operators import FH_run_all
+from .operators import FH_add_BFH_curve_modifier
 from .UI import ui_side_panel
 from .properties import property_group
 from . import preferences
@@ -29,7 +30,8 @@ blender_classes = [FH_result_draw.BFH_OP_result_draw,
                    property_group.BFH_property_group,
                    FH_run_FastHenry.BFH_OP_run_FastHenry,
                    FH_run_all.BFH_OP_result_draw,
-                   preferences.BFH_preferences]
+                   preferences.BFH_preferences,
+                   FH_add_BFH_curve_modifier.BFH_add_curve_modifier]
 
 def register():
     for blender_class in blender_classes:
