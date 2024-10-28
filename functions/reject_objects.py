@@ -17,7 +17,6 @@ def reject_objects(self, context, properties):
     
     reject_col = bpy.data.collections['Rejected']
 
-
     #check curves
     for obj in FH_curve_col.objects:
         #check if obj is CURVE
@@ -27,28 +26,20 @@ def reject_objects(self, context, properties):
             reject_col.objects.link(obj)
 
         #check if obj has the correct modifer 
-        mod_exist = False
-        for mod in obj.modifiers:
-            if mod.name == 'BFH_curve':
-                mod_exist = True
-        if not mod_exist:
+        if not 'BFH_curve' in obj.modifiers:
             FH_curve_col.objects.unlink(obj)
             reject_col.objects.link(obj)
-
         
     #next, plane, check if the plane collection has been set, otherwise no need to continue
     if not FH_plane_col:
         return
     
     for obj in FH_plane_col.objects:
-        mod_exist = False
-        for mod in obj.modifiers:
-            if mod.name == 'BFH_plane':
-                mod_exist = True
-        if not mod_exist:
-            FH_curve_col.objects.unlink(obj)
-            reject_col.objects.link(obj)
 
+        #check if obj has the correct modifer 
+        if not 'BFH_plane' in obj.modifiers:
+            FH_plane_col.objects.unlink(obj)
+            reject_col.objects.link(obj)
 
 
 

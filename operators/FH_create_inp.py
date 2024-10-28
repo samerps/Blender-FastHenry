@@ -124,6 +124,10 @@ class BFH_OP_create_inp(bpy.types.Operator):
             self.report({'WARNING'}, "Empty Collection")
             return {'CANCELLED'}
 
+        elif not bpy.data.is_saved:
+            self.report({'WARNING'}, "File must be saved first")
+            return {'CANCELLED'}
+            
         else:
             reject_objects.reject_objects(self, context, my_properties)
             create_inp(self, context)
