@@ -6,7 +6,22 @@ Blender FastHenry is a Blender 4.2 extension for creating FastHenry simulations.
 
 This extension uses geometry nodes to set some parameters, such segment width and thickness. It also use geometry nodes to visualize ports and connecting nodes between separate curve objects. 
 
-## Installation Instructions - Windows 
+## Contents
+1. [Installation instructions](#installation-instructions---windows)
+1. [Quick start guide](#quick-start-guide)
+    - [Simulation set-up](#simulation-set-up)
+    - [Visualizing results](#visualizing-results)
+1. [Extension capabilities](#3-extension-capabilities)
+    - [Connected and mutually-coupled objects](#connected-and-mutually-coupled-objects)
+    - [Ports](#ports)
+    - [Planes](#planes) 
+    - [Electromag nodes integration](#electromag-nodes-integration)
+1. [Limitations](#4-limitations)
+1. [To do](#5-to-do)
+1. [Applications and use-cases](#6-applications-and-use-cases)
+
+
+## 1. Installation Instructions - Windows 
 - only compatible with **Blender 4.2** and above
 - download extension archive package
 - compile/download `fasthenry.exe` executable from [FastHenry-Sam](https://github.com/samerps/FastHenry2-Sam)
@@ -19,7 +34,7 @@ This extension uses geometry nodes to set some parameters, such segment width an
 ![preferences](docs/images/preferences.jpg) 
 ![N panel](docs/images/N%20panel.jpg)
 
-## Quick Start Guide
+## 2. Quick Start Guide
 
 ### Simulation set-up
 - watch YouTube quick start video (coming soon)
@@ -37,13 +52,25 @@ This extension uses geometry nodes to set some parameters, such segment width an
 - **blue** bounding boxes are drawn around each plane object
 
 
-## Extension Capabilities 
+## 3. Extension Capabilities 
+
+### Connected and mutually-coupled objects
 
 - Separate curves within the same curve object will be considered as a single coil, the end point of each individual will be automatically  connected to the start point of the next curve. This connection will be automatically visually displayed as a single solid line. 
 - Multiple curve objects will considered as mutually coupled. 
-- Combine with ElectroMag Nodes to visualize magnetic field.
 
-## Limitations
+### Ports
+- ports are automatically assigned between the first curve point and the last curve point of each curve object 
+- port arrow and text visibility can be controlled in the geometry node modifier panel
+
+
+### Planes
+- planes can only parallel to xy, xz, or yz planes, no arbitrary rotation allowed. 
+
+### Electromag Nodes integration
+- Combine with [ElectroMag Nodes](https://blendermarket.com/products/electromag-nodes) to visualize magnetic fields.
+
+## 4. Limitations
 
 ### FastHenry limitations
 As this extension uses FastHenry, it is bound by the same limitations of FastHenry itself, specifically:
@@ -59,13 +86,13 @@ As this extension uses FastHenry, it is bound by the same limitations of FastHen
 - Connect curve segments to planes. This is in the To Do list to change.
 - Currently only one segment can connect to another. i.e. each node can only connect to two segments. This is in the To Do list to change.    
 
-## To Do
+## 5. To Do
 - [ ] ability to change the length and width for each segment within a curve. 
 - [ ] specify holes in planes. 
 - [ ] connect curves to planes.
 - [ ] connect multiple segments to nodes.
 
-## Applications and Use Cases
+## 6. Applications and Use Cases
 - Semiconductor wire bonds and copper clip impedance extraction
 - PCB layout impedance extraction
 - RF Air core impedance calculation
