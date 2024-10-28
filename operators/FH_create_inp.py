@@ -125,7 +125,7 @@ class BFH_OP_create_inp(bpy.types.Operator):
             return {'CANCELLED'}
 
         elif not bpy.data.is_saved:
-            self.report({'WARNING', "File must be saved first"})
+            self.report({'WARNING'}, "File must be saved first")
             return {'CANCELLED'}
             
         else:

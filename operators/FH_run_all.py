@@ -21,7 +21,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.report({'WARNING'}, "Empty Collection")
             return {'CANCELLED'}
         elif not bpy.data.is_saved:
-            self.report({'WARNING', "File must be saved first"})
+            self.report({'WARNING'}, "File must be saved first")
             return {'CANCELLED'}
         else:       
             #run create INP file operator
