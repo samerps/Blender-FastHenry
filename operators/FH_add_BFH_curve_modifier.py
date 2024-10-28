@@ -1,7 +1,5 @@
 import bpy # type: ignore
 from pathlib import Path 
-import addon_utils # type: ignore
-import os
 
 class BFH_add_curve_modifier(bpy.types.Operator):
     """Tooltip"""

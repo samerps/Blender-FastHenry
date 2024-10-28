@@ -1,13 +1,4 @@
-# bl_info = {
-#     "name": "Blender Fast Henry",
-#     "author": "Samer Aldhaher",
-#     "version": (1, 0),
-#     "blender": (4, 1, 0),
-#     "location": "N Panel",
-#     "description": "Blender Fast Henry interface",
-#     "warning": "",
-#     "doc_url": ""
-# }
+# Samer Aldhaher @samerps 2024
 
 import bpy #type: ignore
 from .operators import FH_result_draw
@@ -15,6 +6,7 @@ from .operators import FH_create_inp
 from .operators import FH_run_FastHenry
 from .operators import FH_run_all
 from .operators import FH_add_BFH_curve_modifier
+from .operators import FH_add_BFH_plane_object
 from .UI import ui_side_panel
 from .properties import property_group
 from . import preferences
@@ -31,7 +23,8 @@ blender_classes = [FH_result_draw.BFH_OP_result_draw,
                    FH_run_FastHenry.BFH_OP_run_FastHenry,
                    FH_run_all.BFH_OP_result_draw,
                    preferences.BFH_preferences,
-                   FH_add_BFH_curve_modifier.BFH_add_curve_modifier]
+                   FH_add_BFH_curve_modifier.BFH_add_curve_modifier,
+                   FH_add_BFH_plane_object.BFH_add_FHplane]
 
 def register():
     for blender_class in blender_classes:

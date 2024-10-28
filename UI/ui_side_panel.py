@@ -26,8 +26,8 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col = box.column(align = True)
         col.label(text="Operators")
         col.separator()
-        col.operator("object.bfh_add_curve_modifier", text ="Add BFH Curve Modifier")
-
+        col.operator("object.bfh_add_curve_modifier", text ="Add BFH_Curve modifier")
+        col.operator("object.bfh_add_plane", text = "Add BFH_plane object")
         
         ####collections
         box = layout.box()
