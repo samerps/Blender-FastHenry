@@ -33,6 +33,12 @@ def run_FastHenry(self, context):
         # Run the .exe file asynchronously
         self.process = subprocess.Popen([self.exe_path, self.input_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
+        # for line in iter(self.process.stdout.readline, ''):
+        #     print(f"[Output]: {line.strip()}")
+
+        # for err_line in iter(self.process.stderr.readline, ''):
+        #     print(f"[Error]: {err_line.strip()}")
+
         # Print a message indicating that the process has started
         print("Executable is running in the background...")
 
