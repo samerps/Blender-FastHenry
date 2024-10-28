@@ -12,18 +12,21 @@ This extension uses geometry nodes to set some parameters, such segment width an
 - compile/download `fasthenry.exe` executable from [FastHenry-Sam](https://github.com/samerps/FastHenry2-Sam)
 - drag and drop archive in Blender
 - enable extension, go to addon preferences and set path for `fasthenry.exe` 
+- Blender FastHenry should now be available in the N panel
 
 *MacOS and Linux versions coming soon*
 
+![preferences](docs/images/preferences.jpgimages)
+
 ## Quick Start Guide
 
-- watch YouTube quick start video
-- use included predefined curve objects with a geometry node modifier to model objects
-- use included predefined plane objects with a geometry node modifier to model planes
+- watch YouTube quick start video (coming soon)
+- use included predefined Geometry Node Groups for curve objects and planes
 - move all curves required to be solved in a separate collection
 - move all planes required to be solved in a separate collection
-- set simulation parameters in panel
-- run simulation 
+- set simulation parameters in N panel
+- run simulation
+- results are overlaid in the view port
 
 ## Extension Capabilities 
 
