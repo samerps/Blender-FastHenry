@@ -15,6 +15,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
     def execute(self, context):
 
         my_properties = context.scene.BFH_properties
+
+        self.FastHenry_col = my_properties.curve_collection
+        if self.FastHenry_col is None:
+            self.report({'WARNING'}, "Empty Collection")
+            return {'CANCELLED'}
         
         #run create INP file operator
         bpy.ops.object.bfh_create_inp()

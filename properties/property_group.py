@@ -3,6 +3,8 @@ import bpy #type: ignore
 from bpy.props import FloatVectorProperty, FloatProperty, FloatVectorProperty, BoolProperty, IntProperty, StringProperty, PointerProperty #type: ignore
 
 import bpy.utils.previews #type: ignore
+from pathlib import Path 
+import addon_utils # type: ignore
 
 class BFH_property_group(bpy.types.PropertyGroup):
     inductance_result: FloatVectorProperty(name="inductance result", size = 5, default = [0,0,0,0,0]) #type: ignore
@@ -41,6 +43,11 @@ class BFH_property_group(bpy.types.PropertyGroup):
     FH_running: BoolProperty(name= "FH running", default = False,  options={'SKIP_SAVE'}) #type: ignore
     FH_finished: BoolProperty(name= "FH finished", default = True, options={'SKIP_SAVE'}) #type: ignore
 
+    # addon file path
+    for mod in addon_utils.modules():
+        if mod.bl_info['name'] == "Blender FastHenry":
+                p = Path(mod.__file__).resolve()
+                BFH_nodegroup_path: StringProperty(name="BFH_nodegroup_path", subtype='FILE_PATH', default=str(p.parent.joinpath("data", "BFH_nodegroups.blend")))  # type: ignore
 
     
 

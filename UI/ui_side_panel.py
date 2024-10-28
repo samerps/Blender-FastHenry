@@ -21,6 +21,14 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.label(text="Blender FastHenry")
         col.label(text="V 1.0.0")
 
+        ####add modifier panel
+        box = layout.box()
+        col = box.column(align = True)
+        col.label(text="Operators")
+        col.separator()
+        col.operator("object.bfh_add_curve_modifier", text ="Add BFH_Curve modifier")
+        col.operator("object.bfh_add_plane", text = "Add BFH_plane object")
+        
         ####collections
         box = layout.box()
         col = box.column(align = True)
