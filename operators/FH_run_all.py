@@ -20,17 +20,20 @@ class BFH_OP_result_draw(bpy.types.Operator):
         if self.FastHenry_col is None:
             self.report({'WARNING'}, "Empty Collection")
             return {'CANCELLED'}
-        
-        #run create INP file operator
-        bpy.ops.object.bfh_create_inp()
+        elif not bpy.data.is_saved:
+            self.report({'WARNING', "File must be saved first"})
+            return {'CANCELLED'}
+        else:       
+            #run create INP file operator
+            bpy.ops.object.bfh_create_inp()
 
-        #run Run FasHenry operator
-        bpy.ops.object.bfh_run_fasthenry('INVOKE_DEFAULT')
+            #run Run FasHenry operator
+            bpy.ops.object.bfh_run_fasthenry('INVOKE_DEFAULT')
 
-        # #run Display Results operator 
-        # bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
+            # #run Display Results operator 
+            # bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
 
-        return {'FINISHED'}
+            return {'FINISHED'}
 
 
 def menu_func(self, context):
