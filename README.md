@@ -16,19 +16,26 @@ This extension uses geometry nodes to set some parameters, such segment width an
 
 *MacOS and Linux versions coming soon*
 
-![preferences](docs/images/preferences.jpg)
-
+![preferences](docs/images/preferences.jpg) 
 ![N panel](docs/images/N%20panel.jpg)
 
 ## Quick Start Guide
 
+### Simulation set-up
 - watch YouTube quick start video (coming soon)
 - use included predefined Geometry Node Groups for curve objects and planes
-- move all curves required to be solved in a separate collection
-- move all planes required to be solved in a separate collection
-- set simulation parameters in N panel
+- move all **curves** required to be solved in a separate **Curves** collection
+- move all **planes** required to be solved in a separate **Planes** collection
+- set simulation parameters in N panel and set the curves and panels collections 
 - run simulation
-- results are overlaid in the view port
+- any objects that do not have the right properties (ex. object type, geometry node group) will be automatically moved to a new collection named **rejected**
+
+### Visualizing results  
+- results are overlaid in the view port. Each row represents the impedance at a certain frequency of a single object along with a mutually coupled object.
+- use **up/down keyboard arrow** keys to scroll through all simulation objects, the impedance results will be updated based on the object selected. A **red** bounding box is drawn around the selected object
+- use the **left/right keyboard** arrow keys to scroll through all the mutually coupled objects for the current set. A **yellow** bounding box is drawn around the set mutually coupled object. 
+- **blue** bounding boxes are drawn around each plane object
+
 
 ## Extension Capabilities 
 
