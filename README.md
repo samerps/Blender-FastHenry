@@ -48,6 +48,8 @@ This extension uses geometry nodes to set some parameters, such segment width an
 - run simulation
 - any objects that do not have the right properties (ex. object type, geometry node group) will be automatically moved to a new collection named **rejected**
 
+![BFH_curve modifier](docs/images/BFH_curve_modifier.png)
+![BFH_plane modifier](docs/images/BFH_plane_modifier.png)
 ### Visualizing results  
 - results are overlaid in the view port. Each row represents the impedance at a certain frequency of a single object along with a mutually coupled object
 ![result overlay](docs/images/result_overlay.jpg)
