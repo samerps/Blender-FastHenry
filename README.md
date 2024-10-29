@@ -6,6 +6,8 @@ Blender FastHenry is a Blender 4.2 extension for creating FastHenry simulations.
 
 This extension uses geometry nodes to set some parameters, such segment width and thickness. It also use geometry nodes to visualize ports and connecting nodes between separate curve objects. 
 
+![preview](docs/images/preview.jpg)
+
 ## Contents
 1. [Installation instructions](#installation-instructions---windows)
 1. [Quick start guide](#quick-start-guide)
@@ -19,6 +21,7 @@ This extension uses geometry nodes to set some parameters, such segment width an
 1. [Limitations](#4-limitations)
 1. [To do](#5-to-do)
 1. [Applications and use-cases](#6-applications-and-use-cases)
+1. [Future](#7-future)
 
 
 ## 1. Installation Instructions - Windows 
@@ -46,11 +49,14 @@ This extension uses geometry nodes to set some parameters, such segment width an
 - any objects that do not have the right properties (ex. object type, geometry node group) will be automatically moved to a new collection named **rejected**
 
 ### Visualizing results  
-- results are overlaid in the view port. Each row represents the impedance at a certain frequency of a single object along with a mutually coupled object.
+- results are overlaid in the view port. Each row represents the impedance at a certain frequency of a single object along with a mutually coupled object
+![result overlay](docs/images/result_overlay.jpg)
 - use **up/down keyboard arrow** keys to scroll through all simulation objects, the impedance results will be updated based on the object selected. A **red** bounding box is drawn around the selected object
+
 - use the **left/right keyboard** arrow keys to scroll through all the mutually coupled objects for the current set. A **yellow** bounding box is drawn around the set mutually coupled object. 
 - **blue** bounding boxes are drawn around each plane object
 
+![bounding boxes](docs/images/bounding_boxes.jpg)
 
 ## 3. Extension Capabilities 
 
@@ -62,8 +68,7 @@ This extension uses geometry nodes to set some parameters, such segment width an
 ### Ports
 - ports are automatically assigned between the first curve point and the last curve point of each curve object 
 - port arrow and text visibility can be controlled in the geometry node modifier panel
-
-
+![ports](docs/images/port.jpg)
 ### Planes
 - planes can only parallel to xy, xz, or yz planes, no arbitrary rotation allowed. 
 
@@ -76,15 +81,15 @@ This extension uses geometry nodes to set some parameters, such segment width an
 As this extension uses FastHenry, it is bound by the same limitations of FastHenry itself, specifically:
 - cannot model material permeability, only conductors.
 - FastHenry is not field solver, it will not calculate the magnetic field.
-- Rectangular cross sections only, though width and thickness can be changed per segment.
-- Plane objects can only be in xy, xz and yz planes, no arbitrary rotations allowed, this is a limitation of FastHenry.
+- rectangular cross sections only, though width and thickness can be changed per segment.
+- plane objects can only be in xy, xz and yz planes, no arbitrary rotations allowed, this is a limitation of FastHenry.
 
 ### Extension limitations
 
-- All segments within a curve will have same the width and thickness. This is in the To Do list to change
-- Plane holes cannot be modelled. This is in the To Do list to change.
-- Connect curve segments to planes. This is in the To Do list to change.
-- Currently only one segment can connect to another. i.e. each node can only connect to two segments. This is in the To Do list to change.    
+- all segments within a curve will have same the width and thickness. This is in the To Do list to change
+- plane holes cannot be modelled. This is in the To Do list to change.
+- connect curve segments to planes. This is in the To Do list to change.
+- currently only one segment can connect to another. i.e. each node can only connect to two segments. This is in the To Do list to change.    
 
 ## 5. To Do
 - [ ] ability to change the length and width for each segment within a curve. 
@@ -101,3 +106,9 @@ As this extension uses FastHenry, it is bound by the same limitations of FastHen
 - Bus bar impedance calculation
 - Wireless power transfer coils modelling and coupling coefficient calculation  
 - Induction heating coil design
+
+## 7. Future
+
+The source code of FastHenry is based on outdated C code and obsolete libraries. Fasthenry uses the Sparse 1.3 ( Kenneth S. Kundert) library which dates back to 1988.
+
+My plan is to create a new solver based on the theoretical concepts of FastHenry using modern code and libraries, and to address some of its limitations. 
