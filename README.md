@@ -14,8 +14,8 @@ This extension uses geometry nodes to set some parameters, such segment width an
     - [Simulation set-up](#simulation-set-up)
     - [Visualizing results](#visualizing-results)
 1. [Extension capabilities](#3-extension-capabilities)
-    - [Connected and mutually-coupled objects](#connected-and-mutually-coupled-objects)
     - [Ports](#ports)
+    - [Connected and mutually-coupled objects](#connected-and-mutually-coupled-objects)
     - [Planes](#planes) 
     - [Electromag nodes integration](#electromag-nodes-integration)
 1. [Limitations](#4-limitations)
@@ -59,16 +59,19 @@ This extension uses geometry nodes to set some parameters, such segment width an
 ![bounding boxes](docs/images/bounding_boxes.jpg)
 
 ## 3. Extension Capabilities 
-
-### Connected and mutually-coupled objects
-
-- Separate curves within the same curve object will be considered as a single coil, the end point of each individual will be automatically  connected to the start point of the next curve. This connection will be automatically visually displayed as a single solid line. 
-- Multiple curve objects will considered as mutually coupled. 
-
 ### Ports
 - ports are automatically assigned between the first curve point and the last curve point of each curve object 
 - port arrow and text visibility can be controlled in the geometry node modifier panel
 ![ports](docs/images/port.jpg)
+
+### Connected and mutually-coupled objects
+
+- Separate curves within the same curve object will be considered as a single coil, the end point of each individual will be automatically  connected to the start point of the next curve. This connection will be automatically visually displayed as a single solid line. 
+![connected curves](docs/images/connected_curves.jpg)
+
+- Multiple curve objects will considered as mutually coupled. 
+
+
 ### Planes
 - planes can only parallel to xy, xz, or yz planes, no arbitrary rotation allowed. 
 
