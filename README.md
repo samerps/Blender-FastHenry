@@ -72,10 +72,10 @@ This extension uses geometry nodes to set some parameters, such segment width an
 ![connected curves](docs/images/connected_curves.jpg)
 
 - Multiple curve objects will considered as mutually coupled. 
-
+![coupled curves](docs/images/coupled_curves.jpg)
 
 ### Planes
-- planes can only parallel to xy, xz, or yz planes, no arbitrary rotation allowed. 
+- plane objects can only be parallel to the xy, xz, or yz planes, no arbitrary rotation allowed. 
 
 ### Electromag Nodes integration
 - Combine with [ElectroMag Nodes](https://blendermarket.com/products/electromag-nodes) to visualize magnetic fields.
