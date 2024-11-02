@@ -1,0 +1,18 @@
+            - name: Blender Addon Build
+  # You may pin to the exact commit or the version.
+  # uses: BlenderKit/blender-addon-build@4ea6fbab8bac236782eaa0cb6b7810092352535d
+  uses: BlenderKit/blender-addon-build@v0.1
+  with:
+    # Name of the add-on. Used for the name of the build.
+    name: # optional, default is 
+    # Name suffix. None (name.zip), commit hash (name-abc123.zip), PR number with datetime (name-PR123-date_time.zip).
+    name-suffix: # optional, default is none
+    # Command to build the add-on.
+    build-command: # optional, default is 
+    # Path to directory, which will be zipped.
+    build-location: # optional, default is ./
+    # 
+    do-checkout: # optional, default is true
+    # List of file paths (relative to build-location) to exclude from the build. Use semicolon as separator e.g. "file1;dir/file2;dir2/file3".
+    exclude-files: # optional, default is .git
+          
