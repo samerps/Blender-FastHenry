@@ -26,7 +26,7 @@ class BFH_property_group(bpy.types.PropertyGroup):
 
     INP_file_name: StringProperty(name=" INP File Name", default = "BFHoutput")   #type: ignore
 
-    overide_geonodes: BoolProperty(name="Overide Geonodes", default = False)  #type: ignore
+    #overide_geonodes: BoolProperty(name="Overide Geonodes", default = False)  #type: ignore
 
     units_enum: bpy.props.EnumProperty(             #type: ignore
     name = " FH Units", 

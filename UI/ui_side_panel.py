@@ -59,9 +59,9 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.prop(my_properties, 'rh', text = "rh")
         col.prop(my_properties, 'rw', text = "rw")
 
-        col = box.column()
-        icon = 'CHECKBOX_HLT' if my_properties.overide_geonodes else 'CHECKBOX_DEHLT'
-        col.prop(my_properties, 'overide_geonodes',  text = "overide geonodes", icon = icon)
+        # col = box.column()
+        # icon = 'CHECKBOX_HLT' if my_properties.overide_geonodes else 'CHECKBOX_DEHLT'
+        # col.prop(my_properties, 'overide_geonodes',  text = "overide geonodes", icon = icon)
 
         ###Simulation
         box = layout.box()

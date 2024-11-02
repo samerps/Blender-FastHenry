@@ -36,13 +36,8 @@ def create_inp(self, context):
         if obj.type == 'CURVE':
             obj_mesh = obj.to_mesh()
 
-            if my_properties.overide_geonodes == False:
-            #get width and height from geonode group of select object
-                w = obj.modifiers["BFH_curve"]["Socket_2"] 
-                h = obj.modifiers["BFH_curve"]["Socket_3"]
-            else:
-                w=0.1 #width
-                h=0.1 #height
+            w = obj.modifiers["BFH_curve"]["Socket_2"] 
+            h = obj.modifiers["BFH_curve"]["Socket_3"]
 
             #get vertices of selected object
             object_vertices = obj_mesh.vertices
