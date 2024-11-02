@@ -20,6 +20,8 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col = box.column(align = True)
         col.label(text="Blender FastHenry")
         col.label(text="V 1.0.0")
+        col.operator("wm.url_open", text ="FastHenry Guide", icon='URL').url='https://www.fastfieldsolvers.com/Download/FastHenry_User_Guide.pdf'
+        #col.label(text="FastHenry User Guide", icon='URL')
 
         ####add modifier panel
         box = layout.box()
