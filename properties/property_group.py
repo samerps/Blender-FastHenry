@@ -13,14 +13,16 @@ class BFH_property_group(bpy.types.PropertyGroup):
 
     fmin: FloatProperty(name="min frequency", min = 0, default = 0.1)         #type: ignore
     fmax: FloatProperty(name="max frequency", min = 0, default = 10)         #type: ignore
-    ndec: IntProperty(name="ndec", min = 1, default =1)                            #type: ignore
+    ndec: IntProperty(name="ndec", min = 1, max=4, default =1)                            #type: ignore
+    fmultiplier: IntProperty(name="fmultiplier", min=0, max=4, default=0)          # type: ignore
+
 
     conductivity: FloatProperty(name="conductivity", min = 0, default =56)            #type: ignore
 
-    nhinc: IntProperty(name="nhinc", min = 1, default = 1)                           #type: ignore
-    nwinc: IntProperty(name="nwinc", min = 1, default = 1)                           #type: ignore
-    rh: IntProperty(name="rh", min = 1, default = 2)                                 #type: ignore
-    rw: IntProperty(name="rw", min = 1, default = 2)                                 #type: ignore
+    nhinc: IntProperty(name="nhinc", min = 1, max = 7, default = 1)                           #type: ignore
+    nwinc: IntProperty(name="nwinc", min = 1, max = 7, default = 1)                           #type: ignore
+    rh: IntProperty(name="rh", min = 1, max = 7, default = 2)                                 #type: ignore
+    rw: IntProperty(name="rw", min = 1, max = 7, default = 2)                                 #type: ignore
 
     INP_file_name: StringProperty(name=" INP File Name", default = "BFHoutput")   #type: ignore
 

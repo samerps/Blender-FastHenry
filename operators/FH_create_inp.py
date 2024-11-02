@@ -9,7 +9,8 @@ def create_inp(self, context):
     my_properties = context.scene.BFH_properties
     #Fast Henry parameters#
     fmin = my_properties.fmin*1e6
-    fmax = my_properties.fmax*1e6
+    #fmax = my_properties.fmax*1e6
+    fmax = fmin * (10**my_properties.fmultiplier)
     ndec = my_properties.ndec
     nhinc = my_properties.nhinc
     nwinc = my_properties.nwinc
