@@ -8,18 +8,27 @@ class BFH_preferences(AddonPreferences):
     # when defining this in a submodule of a python package.
     bl_idname = __package__
 
-    filepath: StringProperty(
-        name="FastHenry exe File Path",
-        subtype='FILE_PATH',
-    ) # type: ignore
+    filepath: StringProperty(name="FastHenry Executable Path", subtype='FILE_PATH' ) # type: ignore
 
-    timout: IntProperty(
-        name="solver time out (not yet implemented)",
-        default = 0
-    ) # type: ignore
+    timout: IntProperty(name="solver time out", default = 0) # type: ignore
+
+    decimals: IntProperty(name="decimals", default =2 ) #type: ignore
 
     def draw(self, context):
         layout = self.layout
-        #layout.label(text="preferences")
-        layout.prop(self, "filepath")
-        layout.prop(self, "timout")
+
+        box = layout.box()
+        col = box.column(align = True)
+        col.prop(self, "filepath")
+
+        box = layout.box()
+        
+        col = box.column(align = True)
+        row = col.row()
+        row.prop(self, "timout")
+        row.enabled = False
+
+        col = box.column(align = True)
+        row = col.row()
+        row.prop(self, "decimals")
+        row.enabled = False
