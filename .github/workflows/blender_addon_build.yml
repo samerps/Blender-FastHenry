@@ -11,14 +11,11 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest  # Use ubuntu-latest or windows-latest as needed
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Blender Addon Build
         uses: BlenderKit/blender-addon-build@v0.1
@@ -34,4 +31,4 @@ jobs:
           # Whether to check out the repository.
           do-checkout: true  # optional, default is true
           # List of file paths to exclude from the build.
-          exclude-files: ".git;node_modules;docs;README.md"  # optional, default is .git
+          exclude-files: ".git;node_modules"  # optional, default is .git
