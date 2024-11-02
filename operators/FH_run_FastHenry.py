@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import bpy #type: ignore
 import numpy as np  #type: ignore 
@@ -74,7 +75,7 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
         self.exe_path =  bpy.context.preferences.addons[preferences.__package__].preferences.filepath
 
         # check exe path defined correctly and file exist
-        if not self.exe_path.endswith('fasthenry.exe') or not os.path.isfile(self.exe_path):
+        if 'fasthenry' not in self.exe_path or not os.path.isfile(self.exe_path):
             self.report({'WARNING'},'FastHenry executable path not defined or incorrect file')
             return{'CANCELLED'}
 
