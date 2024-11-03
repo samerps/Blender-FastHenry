@@ -1,0 +1,26 @@
+name: Blender Addon Release
+
+on:
+  workflow_dispatch:  # Enables manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use ubuntu-latest or windows-latest as needed
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Blender Addon Release
+        # You may pin to the exact commit or the version.
+        # uses: BlenderKit/blender-addon-release@6d1cd48c66352f559daa01e31c59618799f47005
+        uses: BlenderKit/blender-addon-release@v0.1
+        with:
+          # Version of the release, format: X.Y.Z (major.minor.patch).
+          version: 1.0.0 # optional
+          # Stage of the release, available options: alpha, beta, rc (release candidate), gold (final public release).
+          release_stage: beta # optional, default is gold
+          # Name of the artifact (previously uploaded by build job) to be downloaded and used in name of final release artifact. If left empty the action will use repository name.
+          #artifact_name: # optional, default is 
+          # Name of the release - will be used in title of the release. If left empty, action will use repository name.
+          #release_name: # optional, default is 
+          
