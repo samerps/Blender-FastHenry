@@ -25,4 +25,4 @@ jobs:
           build-command: ''
           build-location: './'
           do-checkout: 'true'
-          exclude-files: '.git;.github;.gitignore;docs;README.md'
+          exclude-files: '.git;.github;.gitignore;docs;README.md;demos'
