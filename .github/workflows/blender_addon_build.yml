@@ -20,15 +20,9 @@ jobs:
       - name: Blender Addon Build
         uses: BlenderKit/blender-addon-build@v0.1
         with:
-          # Name of the add-on. Used for the name of the build.
-          name: "AddonName"  # optional, default is ""
-          # Name suffix. None (name.zip), commit hash (name-abc123.zip), PR number with datetime (name-PR123-date_time.zip).
-          name-suffix: "hash"  # optional, default is "none"
-          # Command to build the add-on.
-          build-command: "python build.py"  # optional, default is ""
-          # Path to directory, which will be zipped.
-          build-location: "./"  # optional, default is ./
-          # Whether to check out the repository.
-          do-checkout: true  # optional, default is true
-          # List of file paths to exclude from the build.
-          exclude-files: ".git;node_modules"  # optional, default is .git
+          name: 'Blender FastHenry'
+          name-suffix: 'commit-hash'
+          build-command: 'make build'
+          build-location: './build'
+          do-checkout: 'true'
+          exclude-files: '.git;.github;.gitignore;docs;README.md'
