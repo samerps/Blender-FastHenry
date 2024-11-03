@@ -21,7 +21,7 @@ jobs:
         uses: BlenderKit/blender-addon-build@v0.1
         with:
           name: 'Blender FastHenry'
-          name-suffix: 'commit-hash'
+          name-suffix: 'none'
           build-command: ''
           build-location: './'
           do-checkout: 'true'
