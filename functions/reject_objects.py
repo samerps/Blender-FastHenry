@@ -22,13 +22,8 @@ def reject_objects(self, context, properties):
     #check curves
     for obj in FH_curve_col.objects:
         #check if obj is CURVE
-        if obj.type != 'CURVE':
+        if obj.type != 'CURVE' or 'BFH_curve' not in obj.modifiers:
             obj.select_set(True)
-            FH_curve_col.objects.unlink(obj)
-            reject_col.objects.link(obj)
-
-        #check if obj has the correct modifer 
-        if not 'BFH_curve' in obj.modifiers:
             FH_curve_col.objects.unlink(obj)
             reject_col.objects.link(obj)
         
@@ -38,7 +33,7 @@ def reject_objects(self, context, properties):
     
     for obj in FH_plane_col.objects:
 
-        #check if obj has the correct modifer 
+        #check if obj has the correct modifier 
         if not 'BFH_plane' in obj.modifiers:
             FH_plane_col.objects.unlink(obj)
             reject_col.objects.link(obj)
