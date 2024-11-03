@@ -1,3 +1,4 @@
+# Samer Aldhaher @samerps 2024
 #class to object to scene and apply BFH_plane modifier to it. The code first checks if the nodgroup "BFH_plane" is already in the current blend file, if not it would append it from the blend file in the addon location
 
 import bpy  # type: ignore

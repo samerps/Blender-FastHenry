@@ -1,3 +1,5 @@
+# Samer Aldhaher @samerps 2024
+
 import bpy # type: ignore
 from pathlib import Path 
 

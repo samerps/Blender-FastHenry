@@ -1,4 +1,4 @@
-#JUNE 2024
+# Samer Aldhaher @samerps 2024
 #this class only generates the FastHenry INP file from the selected object 
 
 import bpy #type: ignore

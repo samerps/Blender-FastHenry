@@ -1,3 +1,5 @@
+# Samer Aldhaher @samerps 2024
+
 import os
 import bpy  #type: ignore
 import numpy as np  #type: ignore 

@@ -1,3 +1,5 @@
+# Samer Aldhaher @samerps 2024
+
 import bpy #type: ignore
 
 def reject_objects(self, context, properties):

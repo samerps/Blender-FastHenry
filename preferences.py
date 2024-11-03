@@ -1,3 +1,5 @@
+# Samer Aldhaher @samerps 2024
+
 import bpy # type: ignore
 from bpy.types import Operator, AddonPreferences # type: ignore
 from bpy.props import StringProperty, IntProperty, BoolProperty # type: ignore

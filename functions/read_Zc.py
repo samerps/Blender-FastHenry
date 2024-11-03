@@ -1,3 +1,4 @@
+# Samer Aldhaher @samerps 2024
 #this function read Zc impedance ouput file and processes its contents into three lists: frequency, resistance , inductance 
 
 import re

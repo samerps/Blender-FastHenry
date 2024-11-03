@@ -1,3 +1,4 @@
+# Samer Aldhaher @samerps 2024
 #operator that runs all other operators in order 
 
 import bpy #type: ignore

@@ -1,3 +1,5 @@
+# Samer Aldhaher @samerps 2024
+
 import os
 import bpy #type: ignore
 from bpy.props import FloatVectorProperty, FloatProperty, FloatVectorProperty, BoolProperty, IntProperty, StringProperty, PointerProperty #type: ignore

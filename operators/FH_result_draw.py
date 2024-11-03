@@ -1,4 +1,4 @@
-#JUNE 2024
+# Samer Aldhaher @samerps 2024
 #this class used BLF to display a HUD which shows the results   
 
 import bpy #type: ignore
