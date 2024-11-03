@@ -22,7 +22,7 @@ jobs:
         with:
           name: 'Blender FastHenry'
           name-suffix: 'commit-hash'
-          build-command: 'make build'
+          build-command: ''
           build-location: './build'
           do-checkout: 'true'
           exclude-files: '.git;.github;.gitignore;docs;README.md'
