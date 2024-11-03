@@ -20,7 +20,7 @@ jobs:
           # Stage of the release, available options: alpha, beta, rc (release candidate), gold (final public release).
           release_stage: beta # optional, default is gold
           # Name of the artifact (previously uploaded by build job) to be downloaded and used in name of final release artifact. If left empty the action will use repository name.
-          #artifact_name: # optional, default is 
+          artifact_name: '' # optional, default is 
           # Name of the release - will be used in title of the release. If left empty, action will use repository name.
-          #release_name: # optional, default is 
+          release_name: '' # optional, default is 
           
