@@ -4,7 +4,7 @@
 
 Blender FastHenry is a Blender 4.2 extension for creating FastHenry simulations. You can model geometries (curves) and planes, and call FastHenry executable to solve for resistance, inductance and mutual inductance. The results are displayed visually in Blender.
 
-This extension uses geometry nodes to set some parameters, such segment width and thickness. It also use geometry nodes to visualize ports and connecting nodes between separate curve objects. 
+This extension uses geometry nodes to set some parameters, such as segment width and thickness. It also uses geometry nodes to visualize ports and connecting nodes between separate curve objects. 
 
 ![preview](docs/images/preview.jpg)
 
