@@ -68,7 +68,7 @@ This extension uses geometry nodes to set some parameters, such as segment width
 
 ### Connected and mutually-coupled objects
 
-- Separate curves within the same curve object will be considered as a single coil, the end point of each individual will be automatically  connected to the start point of the next curve. This connection will be automatically visually displayed as a single solid line. 
+- Separate curves within the same curve object will be considered as a single object/coil, the end point of each individual curve will be automatically connected to the start point of the next curve. This connection will be automatically visually displayed as a single solid line. 
 ![connected curves](docs/images/connected_curves.jpg)
 
 - Multiple curve objects will considered as mutually coupled. 
@@ -87,7 +87,7 @@ As this extension uses FastHenry, it is bound by the same limitations of FastHen
 - cannot model material permeability, only conductors.
 - FastHenry is not field solver, it will not calculate the magnetic field.
 - rectangular cross sections only, though width and thickness can be changed per segment.
-- plane objects can only be in xy, xz and yz planes, no arbitrary rotations allowed, this is a limitation of FastHenry.
+- plane objects can only be in xy, xz and yz planes, no arbitrary rotations allowed.
 
 ### Extension limitations
 
