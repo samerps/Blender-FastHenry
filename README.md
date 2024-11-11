@@ -25,12 +25,16 @@ This extension uses geometry nodes to set some parameters, such as segment width
 
 
 ## 1. Installation Instructions - Windows 
-- only compatible with **Blender 4.2** and above
-- download extension archive package
-- compile/download `fasthenry.exe` executable from [FastHenry-Sam](https://github.com/samerps/FastHenry2-Sam)
-- drag and drop archive in Blender
-- enable extension, go to addon preferences and set path for `fasthenry.exe` 
+- Compatible only with **Blender 4.2** and above
+- Download the zipfile of this Blender-FastHenry repository
+- Complete the compile/download steps for [FastHenry-Sam](https://github.com/samerps/FastHenry2-Sam) to obtain `fasthenry.exe`. Note the location. 
+- In Blender go to the `Edit> Preferences> Get Extensions` menu, use the "Install from Disk" option and select the zipfile to install the extension.
+- To enable the extension, go to `Edit> Preferences> Add-Ons` and find the Blender FastHenry extension. Set the FastHenry Executable path for the compiled `fasthenry.exe` 
 - Blender FastHenry should now be available in the N panel
+
+
+
+  * N-Panel may be collapsed by default upon start. Click the arrow to the right of the XYZ Orientation Compass to expand and if correctly installed you will see Blender FH as shown below.
 
 *MacOS and Linux versions coming soon*
 
@@ -41,6 +45,7 @@ This extension uses geometry nodes to set some parameters, such as segment width
 
 ### Simulation set-up
 - watch YouTube quick start video (coming soon)
+    - You can verify correct installion by opening the `Demos/TO-220 package.blend` and comparing actions with this [sample video](https://www.youtube.com/watch?v=_jkRahzmDq8)    
 - use included predefined Geometry Node Groups for curve objects and planes
 - move all **curves** required to be solved in a separate **Curves** collection
 - move all **planes** required to be solved in a separate **Planes** collection
