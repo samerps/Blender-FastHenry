@@ -21,8 +21,10 @@ def reject_objects(self, context, properties):
 
     #check curves
     for obj in FH_curve_col.objects:
-        #check if obj is CURVE
-        if obj.type != 'CURVE' or 'BFH_curve' not in obj.modifiers:
+        #check if obj is not CURVE
+        if (obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers) or ("FH_var_segment" in obj):
+            pass
+        else:
             obj.select_set(True)
             FH_curve_col.objects.unlink(obj)
             reject_col.objects.link(obj)
