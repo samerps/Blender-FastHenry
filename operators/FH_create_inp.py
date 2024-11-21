@@ -158,5 +158,6 @@ class BFH_OP_create_inp(bpy.types.Operator):
         else:
             reject_objects.reject_objects(self, context, my_properties)
             create_inp(self, context)
+            self.report({'INFO'}, "INP file created in blend file directory")
             return {'FINISHED'}
 
