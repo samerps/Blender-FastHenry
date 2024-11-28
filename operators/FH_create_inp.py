@@ -156,8 +156,8 @@ class BFH_OP_create_inp(bpy.types.Operator):
             return {'CANCELLED'}
             
         else:
-            reject_objects.reject_objects(self, context, my_properties)
+            no_rejected_objects = reject_objects.reject_objects(self, context, my_properties)
             create_inp(self, context)
-            self.report({'INFO'}, "INP file created in blend file directory")
+            self.report({'INFO'}, "INP file created in blend file directory, rejected " + str(no_rejected_objects) + " objects")
             return {'FINISHED'}
 
