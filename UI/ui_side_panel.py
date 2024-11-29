@@ -30,10 +30,14 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col = box.column(align = True)
         col.label(text="Operators")
         col.separator()
-        col.operator("object.bfh_add_curve_modifier", text ="Add BFH_Curve modifier")
+        col.operator("object.bfh_add_curve_modifier", text = "Add BFH_Curve modifier")
         col.separator()
         col.operator("object.bfh_add_plane", text = "Add BFH_plane object")
-        
+        col.separator()
+        col.operator("object.bfh_add_varsegment_modifier", text = "Add BFH_var_segment modifier")
+        col.separator()
+        col.operator("geometry.execute_node_group", text = "Change segment dimensions").name="BFH_change_segment"
+             
         ####collections
         box = layout.box()
         col = box.column(align = True)
