@@ -136,19 +136,20 @@ class BFH_OP_create_inp(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        #check if FastHenry collection exist
+        
         my_properties = context.scene.BFH_properties
-        # FastHenry_col_found = False
-        # for col in bpy.data.collections:
-        #     if col.name == 'FastHenry':
-        #         FastHenry_col_found = True
-        #         self.FastHenry_col = col
         
         self.FastHenry_col = my_properties.curve_collection
         self.plane_col = my_properties.plane_collection
 
+        #check if FastHenry collection exist
         if self.FastHenry_col is None:
-            self.report({'WARNING'}, "Empty Collection")
+            self.report({'WARNING'}, "FastHenry collection not set")
+            return {'CANCELLED'}
+        
+        #check if FastHenry collection has no objects in it
+        elif len(self.FastHenry_col.objects) == 0:
+            self.report({'WARNING'}, "Empty collection")
             return {'CANCELLED'}
 
         elif not bpy.data.is_saved:
@@ -157,6 +158,12 @@ class BFH_OP_create_inp(bpy.types.Operator):
             
         else:
             no_rejected_objects = reject_objects.reject_objects(self, context, my_properties)
+
+            #check again if the FastHenry collection has no objects, it could be that all the objects were rejected
+            if len(self.FastHenry_col.objects) == 0:
+                self.report({'WARNING'}, "Empty collection, all objects rejected")
+                return {'CANCELLED'}
+            
             create_inp(self, context)
             self.report({'INFO'}, "INP file created in blend file directory, rejected " + str(no_rejected_objects) + " objects")
             return {'FINISHED'}
