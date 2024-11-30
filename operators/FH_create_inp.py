@@ -34,7 +34,7 @@ def create_inp(self, context):
     
     for obj in self.FastHenry_col.objects:
         ### if object is a curve with FH_Curve modifier
-        if obj.type == 'CURVE':
+        if obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers:
             obj_mesh = obj.to_mesh()
 
             w = obj.modifiers["BFH_curve"]["Socket_2"] 
@@ -68,8 +68,8 @@ def create_inp(self, context):
 
             obj.to_mesh_clear()
 
-        ### if object is a mesh with "FH_var_segment" custom property
-        elif "FH_var_segment" in obj:
+        ### if object is a mesh with "BFH_var_segment" modifier
+        elif obj.type == 'MESH' and "BFH_var_segment" in obj.modifiers:
             #get vertices of selected object
             object_vertices = obj.data.vertices
             mat_world = obj.matrix_world
