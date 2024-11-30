@@ -58,7 +58,10 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
     bl_idname = "object.bfh_run_fasthenry"
     bl_label = "Run FastHenry"
 
-    #check if FastHenry inp file exist
+    #check if bpy.data.filepath exists, this indicate if the blend file actually exists in a directory
+    @classmethod
+    def poll(cls, context):
+        return bpy.data.filepath != ""
 
     basedir = ""
     input_file = ""
@@ -81,15 +84,15 @@ class BFH_OP_run_FastHenry(bpy.types.Operator):
             self.report({'WARNING'},'FastHenry executable path not defined or incorrect file')
             return{'CANCELLED'}
 
-        
         self.basedir = os.path.dirname(bpy.data.filepath)
         self.input_file = os.path.join(self.basedir, my_properties.INP_file_name + ".inp")
-        os.chdir(self.basedir)
 
         # Check if the input file exists and has .inp extension
         if not os.path.exists(self.input_file):
             self.report({'WARNING'}, "no FastHenry file, perhaps was not created")
             return{'CANCELLED'}
+
+        os.chdir(self.basedir)
 
         run_FastHenry(self, context)
        

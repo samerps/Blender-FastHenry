@@ -9,9 +9,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
     bl_idname = "object.bfh_run_all"
     bl_label = "BFH Run All"
 
-    # @classmethod
-    # def poll(cls, context):
-    #     return context.active_object is not None
+    #check if bpy.data.filepath exists, this indicate if the blend file actually exists in a directory
+    @classmethod
+    def poll(cls, context):
+        return bpy.data.filepath != ""
 
     def execute(self, context):
 

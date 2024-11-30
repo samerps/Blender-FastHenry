@@ -209,6 +209,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
     bl_idname = "view3d.bfh_draw_operator"
     bl_label = "BFH Draw Operator"
 
+    #check if bpy.data.filepath exists, this indicate if the blend file actually exists in a directory
+    @classmethod
+    def poll(cls, context):
+        return bpy.data.filepath != ""
+
     def modal(self, context, event):
 
         context.area.tag_redraw()
