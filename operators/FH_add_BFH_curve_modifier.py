@@ -8,6 +8,11 @@ class BFH_add_curve_modifier(bpy.types.Operator):
     bl_idname = "object.bfh_add_curve_modifier"
     bl_label = "Add BFH curve modifier"
 
+    @classmethod
+    def poll(cls, context):
+        # Ensure we're in OBJECT mode
+        return context.mode == 'OBJECT'
+
     def execute(self, context):
 
         my_properties = context.scene.BFH_properties
