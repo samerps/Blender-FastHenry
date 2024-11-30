@@ -33,6 +33,7 @@ def create_inp(self, context):
     element_index = 1
     
     for obj in self.FastHenry_col.objects:
+        ### if object is a curve with FH_Curve modifier
         if obj.type == 'CURVE':
             obj_mesh = obj.to_mesh()
 
@@ -66,6 +67,36 @@ def create_inp(self, context):
             textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
 
             obj.to_mesh_clear()
+
+        ### if object is a mesh with "FH_var_segment" custom property
+        elif "FH_var_segment" in obj:
+            #get vertices of selected object
+            object_vertices = obj.data.vertices
+            mat_world = obj.matrix_world
+            vertex_co_global = []
+
+            for vertex in object_vertices:
+                vertex_co_global.append(mat_world @ vertex.co)
+
+            first_node_index = node_index
+            last_node_index = node_index + len(vertex_co_global)-1
+            ###NODES
+            textfile.write('* NODES \n')
+            for co in vertex_co_global:
+                textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
+                node_index +=1
+
+            ###ELEMENTS
+            textfile.write('* SEGMENTS \n')
+            for i in range(len(vertex_co_global)-1):
+                w = obj.data.attributes["width"].data[i].value
+                h = obj.data.attributes["thickness"].data[i].value
+                textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
+                element_index +=1
+            
+            ###PORT
+            textfile.write('* PORTS \n')
+            textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
 
 
     ##planes
@@ -125,7 +156,8 @@ class BFH_OP_create_inp(bpy.types.Operator):
             return {'CANCELLED'}
             
         else:
-            reject_objects.reject_objects(self, context, my_properties)
+            no_rejected_objects = reject_objects.reject_objects(self, context, my_properties)
             create_inp(self, context)
+            self.report({'INFO'}, "INP file created in blend file directory, rejected " + str(no_rejected_objects) + " objects")
             return {'FINISHED'}
 

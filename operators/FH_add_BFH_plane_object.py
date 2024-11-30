@@ -8,6 +8,11 @@ class BFH_add_FHplane(bpy.types.Operator):
     bl_idname = "object.bfh_add_plane"
     bl_label = "Add BFH plane object"
 
+    @classmethod
+    def poll(cls, context):
+        # Ensure we're in OBJECT mode
+        return context.mode == 'OBJECT'
+    
     def execute(self, context):
         my_properties = context.scene.BFH_properties
 

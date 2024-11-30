@@ -8,6 +8,11 @@ class BFH_add_curve_modifier(bpy.types.Operator):
     bl_idname = "object.bfh_add_curve_modifier"
     bl_label = "Add BFH curve modifier"
 
+    @classmethod
+    def poll(cls, context):
+        # Ensure we're in OBJECT mode
+        return context.mode == 'OBJECT'
+
     def execute(self, context):
 
         my_properties = context.scene.BFH_properties
@@ -22,6 +27,10 @@ class BFH_add_curve_modifier(bpy.types.Operator):
             self.report({'WARNING'}, "Object already has BFH_curve modifier")
             return{'FINISHED'}
         
+        if selected_obj.type != "CURVE":
+            self.report({'WARNING'}, "Object is not a CURVE")
+            return{'FINISHED'}
+
         #check if node group already exists 
         if "BFH_curve" not in bpy.data.node_groups:
             with bpy.data.libraries.load(my_properties.BFH_nodegroup_path) as (data_from, data_to):
