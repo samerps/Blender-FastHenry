@@ -105,8 +105,8 @@ def create_inp(self, context):
         for j, obj in enumerate(self.plane_col.objects):
             
             #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
-            seg1 = obj.modifiers["BFH_plane"]["Socket_8"]    
-            seg2 = obj.modifiers["BFH_plane"]["Socket_10"]
+            seg1 = obj.modifiers["BFH_plane"]["Socket_8"]-1    
+            seg2 = obj.modifiers["BFH_plane"]["Socket_10"]-1
             thickness = obj.modifiers["BFH_plane"]["Socket_9"]
 
             obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
