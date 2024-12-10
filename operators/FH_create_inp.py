@@ -133,7 +133,12 @@ class BFH_OP_create_inp(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        my_properties = context.scene.BFH_properties
+        FastHenry_col = my_properties.curve_collection
+        return FastHenry_col is not None
+
+
+        # return context.active_object is not None
 
     def execute(self, context):
         

@@ -12,7 +12,9 @@ class BFH_OP_result_draw(bpy.types.Operator):
     #check if bpy.data.filepath exists, this indicate if the blend file actually exists in a directory
     @classmethod
     def poll(cls, context):
-        return bpy.data.filepath != ""
+        my_properties = context.scene.BFH_properties
+        FastHenry_col = my_properties.curve_collection
+        return bpy.data.filepath != "" and FastHenry_col is not None
 
     def execute(self, context):
 
