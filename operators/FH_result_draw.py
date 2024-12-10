@@ -112,7 +112,7 @@ def draw_callback_px(self, context):
     ### draw object name
     xpos = self.text_pos[0]
     ypos = self.text_pos[1]-text_height*1.25
-    line_text = "Curve: "
+    line_text = "Object: "
     blf.color(font_id, 1, 1, 1, 1) #white
     blf.position(font_id, xpos, ypos, 0)
     text_width, dummy = blf.dimensions(font_id, line_text)
@@ -149,46 +149,50 @@ def draw_callback_px(self, context):
             xpos += text_width * 1.25
             blf.position(font_id, xpos, ypos, 0)
 
-    ### draw mutual inductance texts
-    if self.no_of_objs == 1  or self.mutual_obj_index == self.obj_index:
-        return
     
-    ### draw mutual object name
-    xpos += text_width
-    xpos_store = xpos 
-    #xpos_m += text_width 
-    ypos = self.text_pos[1]-text_height*1.25
-    line_text = "Mutual Curve: "
-    blf.color(font_id, 1, 1, 1, 1) #white
-    blf.position(font_id, xpos, ypos, 0)
-    text_width, dummy = blf.dimensions(font_id, line_text)
-    blf.draw(font_id, line_text + " ")
+    ### draw mutual inductance texts
+    # if self.no_of_objs == 1  or self.mutual_obj_index == self.obj_index:
+    #     return
+    
+    if self.no_of_objs > 1:
 
-    xpos += text_width * 1.25
-    line_text = self.mutual_obj_name_to_display
-    blf.color(font_id, 1, 1, 0, 1) #yellow
-    blf.position(font_id, xpos, ypos, 0)
-    text_width, dummy = blf.dimensions(font_id, line_text)
-    blf.draw(font_id, line_text + " ")
-
-    for i in range(len(self.frequency)):          
-        xpos = xpos_store
-        ypos = self.text_pos[1]-text_height*(i+2)*1.25
+   
+        ### draw mutual object name
+        xpos += text_width
+        xpos_store = xpos 
+        #xpos_m += text_width 
+        ypos = self.text_pos[1]-text_height*1.25
+        line_text = "Mutual Curve: "
+        blf.color(font_id, 1, 1, 1, 1) #white
         blf.position(font_id, xpos, ypos, 0)
-        
-        line_text =  "Mut_Ind.: " + np.array2string(self.mutual_inductance_display[i], precision=3)
-        line_text_words = line_text.split()
-        
-        for word in line_text_words:
-            text_width, dummy = blf.dimensions(font_id, word)
-            if word in {'Mut_Ind.:'}:
-                blf.color(font_id, 1, 1, 1, 1) #white
-            else:
-                blf.color(font_id, 1, 1, 0, 1) #yellow
-            
-            blf.draw(font_id, word + " ")
-            xpos += text_width * 1.25
+        text_width, dummy = blf.dimensions(font_id, line_text)
+        blf.draw(font_id, line_text + " ")
+
+        xpos += text_width * 1.25
+        line_text = self.mutual_obj_name_to_display
+        blf.color(font_id, 1, 1, 0, 1) #yellow
+        blf.position(font_id, xpos, ypos, 0)
+        text_width, dummy = blf.dimensions(font_id, line_text)
+        blf.draw(font_id, line_text + " ")
+
+        for i in range(len(self.frequency)):          
+            xpos = xpos_store
+            ypos = self.text_pos[1]-text_height*(i+2)*1.25
             blf.position(font_id, xpos, ypos, 0)
+            
+            line_text =  "Mut_Ind.: " + np.array2string(self.mutual_inductance_display[i], precision=3)
+            line_text_words = line_text.split()
+            
+            for word in line_text_words:
+                text_width, dummy = blf.dimensions(font_id, word)
+                if word in {'Mut_Ind.:'}:
+                    blf.color(font_id, 1, 1, 1, 1) #white
+                else:
+                    blf.color(font_id, 1, 1, 0, 1) #yellow
+                
+                blf.draw(font_id, word + " ")
+                xpos += text_width * 1.25
+                blf.position(font_id, xpos, ypos, 0)
 
     ### draw plane texts
     xpos += text_width
@@ -228,7 +232,7 @@ def draw_callback_pv(self, context):
 
     # Create the batch for drawing the triangles of the object
     batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices}, indices=self.triangle_indices)
-    shader.uniform_float("color", (0.0, 1.0, 0.0, 0.25))  # Green with 50% transparency
+    shader.uniform_float("color", (1.0, 0.1, 0.0, 0.25))  # Green with 50% transparency
     batch.draw(shader)
 
     # # Edge draw shader
@@ -500,7 +504,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
         
 
 def menu_func(self, context):
-    self.layout.operator(BFH_OP_result_draw.bl_idname, text="Modal Draw Operator2")
+    self.layout.operator(BFH_OP_result_draw.bl_idname, text="BFH Result Draw Operator")
 
 # Register and add to the "view" menu (required to also use F3 search "Modal Draw Operator" for quick access).
 def register():
