@@ -245,10 +245,14 @@ def draw_callback_pv(self, context):
     
 
     if self.no_of_objs > 1 and self.mutual_obj_index != self.obj_index:
+        # TRI draw shader
         shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-        batch = batch_for_shader(shader, 'LINES', {"pos": self.mutual_bound_coords}, indices=self.indices)
-    
-        shader.uniform_float("color", (1, 1, 0, 1)) #yellow
+        gpu.state.blend_set('ALPHA')
+        gpu.state.line_width_set(2.0)
+
+        # Create the batch for drawing the triangles of the object
+        batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices_mutual}, indices=self.triangle_indices_mutual)
+        shader.uniform_float("color", (1.0, 1.0, 0.0, 0.25))  # Green with 50% transparency
         batch.draw(shader)
 
         #draw line from selected object to mutual object, this is done by getting average coordinates of the bounding box
@@ -307,6 +311,8 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
                 self.mutual_bound_coords = obj_bounds(mutual_obj)
                 self.mutual_obj_name_to_display = mutual_obj.name
+                # Get the vertices and triangles of the mutual object
+                self.vertices_mutual, self.triangle_indices_mutual = get_object_triangles(mutual_obj)
 
             ### planes
             if self.FastHenry_plane_col is None:
@@ -336,7 +342,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
         ###events
 
-        if event.type == 'UP_ARROW' and event.value == 'PRESS':
+        if event.type == 'DOWN_ARROW' and event.value == 'PRESS':
             self.obj_index += 1
             if self.obj_index == self.no_of_objs:
                 self.obj_index = 0
@@ -353,7 +359,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
                                                                         
             return {'RUNNING_MODAL'}
             
-        elif event.type == 'DOWN_ARROW' and event.value == 'PRESS':
+        elif event.type == 'UP_ARROW' and event.value == 'PRESS':
             self.obj_index -=1
             if self.obj_index == -1:
                 self.obj_index = self.no_of_objs -1
@@ -369,7 +375,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
             return {'RUNNING_MODAL'}
 
-        elif event.type == 'RIGHT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
+        elif event.type == 'LEFT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
             self.mutual_obj_index += 1
             if self.mutual_obj_index == self.obj_index:
                 self.mutual_obj_index +=1
@@ -382,9 +388,13 @@ class BFH_OP_result_draw(bpy.types.Operator):
             mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
             self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
             self.mutual_obj_name_to_display = mutual_obj.name
+
+            # Get the vertices and triangles of the mutual object
+            self.vertices_mutual, self.triangle_indices_mutual = get_object_triangles(mutual_obj)
+
             return {'RUNNING_MODAL'}
         
-        elif event.type == 'LEFT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
+        elif event.type == 'RIGHT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
             self.mutual_obj_index -=1
             if self.mutual_obj_index == self.obj_index:
                 self.mutual_obj_index -=1
@@ -397,6 +407,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
             mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
             self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
             self.mutual_obj_name_to_display = mutual_obj.name
+
+            # Get the vertices and triangles of the mutual object
+            self.vertices_mutual, self.triangle_indices_mutual = get_object_triangles(mutual_obj)
+
             return {'RUNNING_MODAL'}
         
         if event.type in {'MIDDLEMOUSE', 'MOUSEMOVE'}:
