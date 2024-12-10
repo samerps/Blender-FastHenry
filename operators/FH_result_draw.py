@@ -24,7 +24,54 @@ def init():
     else:
         # Default font.
         font_info["font_id"] = 0
+
+# Function to get the evaluated edges (with modifiers applied)
+def get_evaluated_edges(obj):
+    if obj.type != 'MESH':
+        return [], []
+
+    # Get the evaluated object
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = obj.evaluated_get(depsgraph)
+    eval_mesh = eval_obj.to_mesh()
+
+    # Transform vertex coordinates to world space
+    vertices = [obj.matrix_world @ v.co for v in eval_mesh.vertices]
+
+    # Extract edge indices
+    edge_indices = [(edge.vertices[0], edge.vertices[1]) for edge in eval_mesh.edges]
+
+    # Release the evaluated mesh
+    eval_obj.to_mesh_clear()
+
+    return vertices, edge_indices
+
+# Function to get the evaluated mesh (with modifiers applied) and extract vertex and triangle data
+def get_object_triangles(obj):
+
+    # Get the evaluated object
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = obj.evaluated_get(depsgraph)
+    eval_mesh = eval_obj.to_mesh()
+
+    # Transform vertex coordinates to world space
+    vertices = [obj.matrix_world @ v.co for v in eval_mesh.vertices]
+
+    # Extract triangle indices
+    triangle_indices = []
+    for poly in eval_mesh.polygons:
+        if len(poly.vertices) == 3:
+            triangle_indices.append((poly.vertices[0], poly.vertices[1], poly.vertices[2]))
+        elif len(poly.vertices) == 4:  # Handle quads
+            triangle_indices.append((poly.vertices[0], poly.vertices[1], poly.vertices[2]))
+            triangle_indices.append((poly.vertices[2], poly.vertices[3], poly.vertices[0]))
+
+    # Release the evaluated mesh
+    eval_obj.to_mesh_clear()
     
+    return vertices, triangle_indices
+
+
 def obj_bounds(obj):
     #get bounding box vertices of object with transform 
     mat_world = obj.matrix_world
@@ -65,7 +112,7 @@ def draw_callback_px(self, context):
     ### draw object name
     xpos = self.text_pos[0]
     ypos = self.text_pos[1]-text_height*1.25
-    line_text = "Curve: "
+    line_text = "Object: "
     blf.color(font_id, 1, 1, 1, 1) #white
     blf.position(font_id, xpos, ypos, 0)
     text_width, dummy = blf.dimensions(font_id, line_text)
@@ -102,46 +149,50 @@ def draw_callback_px(self, context):
             xpos += text_width * 1.25
             blf.position(font_id, xpos, ypos, 0)
 
-    ### draw mutual inductance texts
-    if self.no_of_objs == 1  or self.mutual_obj_index == self.obj_index:
-        return
     
-    ### draw mutual object name
-    xpos += text_width
-    xpos_store = xpos 
-    #xpos_m += text_width 
-    ypos = self.text_pos[1]-text_height*1.25
-    line_text = "Mutual Curve: "
-    blf.color(font_id, 1, 1, 1, 1) #white
-    blf.position(font_id, xpos, ypos, 0)
-    text_width, dummy = blf.dimensions(font_id, line_text)
-    blf.draw(font_id, line_text + " ")
+    ### draw mutual inductance texts
+    # if self.no_of_objs == 1  or self.mutual_obj_index == self.obj_index:
+    #     return
+    
+    if self.no_of_objs > 1:
 
-    xpos += text_width * 1.25
-    line_text = self.mutual_obj_name_to_display
-    blf.color(font_id, 1, 1, 0, 1) #yellow
-    blf.position(font_id, xpos, ypos, 0)
-    text_width, dummy = blf.dimensions(font_id, line_text)
-    blf.draw(font_id, line_text + " ")
-
-    for i in range(len(self.frequency)):          
-        xpos = xpos_store
-        ypos = self.text_pos[1]-text_height*(i+2)*1.25
+   
+        ### draw mutual object name
+        xpos += text_width
+        xpos_store = xpos 
+        #xpos_m += text_width 
+        ypos = self.text_pos[1]-text_height*1.25
+        line_text = "Mutual Curve: "
+        blf.color(font_id, 1, 1, 1, 1) #white
         blf.position(font_id, xpos, ypos, 0)
-        
-        line_text =  "Mut_Ind.: " + np.array2string(self.mutual_inductance_display[i], precision=3)
-        line_text_words = line_text.split()
-        
-        for word in line_text_words:
-            text_width, dummy = blf.dimensions(font_id, word)
-            if word in {'Mut_Ind.:'}:
-                blf.color(font_id, 1, 1, 1, 1) #white
-            else:
-                blf.color(font_id, 1, 1, 0, 1) #yellow
-            
-            blf.draw(font_id, word + " ")
-            xpos += text_width * 1.25
+        text_width, dummy = blf.dimensions(font_id, line_text)
+        blf.draw(font_id, line_text + " ")
+
+        xpos += text_width * 1.25
+        line_text = self.mutual_obj_name_to_display
+        blf.color(font_id, 1, 1, 0, 1) #yellow
+        blf.position(font_id, xpos, ypos, 0)
+        text_width, dummy = blf.dimensions(font_id, line_text)
+        blf.draw(font_id, line_text + " ")
+
+        for i in range(len(self.frequency)):          
+            xpos = xpos_store
+            ypos = self.text_pos[1]-text_height*(i+2)*1.25
             blf.position(font_id, xpos, ypos, 0)
+            
+            line_text =  "Mut_Ind.: " + np.array2string(self.mutual_inductance_display[i], precision=3)
+            line_text_words = line_text.split()
+            
+            for word in line_text_words:
+                text_width, dummy = blf.dimensions(font_id, word)
+                if word in {'Mut_Ind.:'}:
+                    blf.color(font_id, 1, 1, 1, 1) #white
+                else:
+                    blf.color(font_id, 1, 1, 0, 1) #yellow
+                
+                blf.draw(font_id, word + " ")
+                xpos += text_width * 1.25
+                blf.position(font_id, xpos, ypos, 0)
 
     ### draw plane texts
     xpos += text_width
@@ -166,20 +217,44 @@ def draw_callback_pv(self, context):
     #draw bounding boxes 
 
     if len(self.trans_bound_coords) == 0:
-        print("returned")
         return
     
-    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-    batch = batch_for_shader(shader, 'LINES', {"pos": self.trans_bound_coords}, indices=self.indices)
+    # if not self.vertices or not self.edge_indices:
+    #     return
     
-    shader.uniform_float("color", (1, 0, 0, 1)) #red
+    if not self.vertices or not self.triangle_indices:
+        return
+
+    # TRI draw shader
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    gpu.state.blend_set('ALPHA')
+    gpu.state.line_width_set(2.0)
+
+    # Create the batch for drawing the triangles of the object
+    batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices}, indices=self.triangle_indices)
+    shader.uniform_float("color", (1.0, 0.1, 0.0, 0.25))  # Green with 50% transparency
     batch.draw(shader)
 
-    if self.no_of_objs > 1 and self.mutual_obj_index != self.obj_index:
-        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-        batch = batch_for_shader(shader, 'LINES', {"pos": self.mutual_bound_coords}, indices=self.indices)
+    # # Edge draw shader
+    # shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    # gpu.state.blend_set('ALPHA')
+    # gpu.state.line_width_set(2.0)
+
+    # # Create the batch for drawing the edges of the object
+    # batch = batch_for_shader(shader, 'LINES', {"pos": self.vertices}, indices=self.edge_indices)
+    # shader.uniform_float("color", (0.0, 1.0, 0.0, 0.5))  # Green with 50% transparency
+    # batch.draw(shader)
     
-        shader.uniform_float("color", (1, 1, 0, 1)) #yellow
+
+    if self.no_of_objs > 1 and self.mutual_obj_index != self.obj_index:
+        # TRI draw shader
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+        gpu.state.blend_set('ALPHA')
+        gpu.state.line_width_set(2.0)
+
+        # Create the batch for drawing the triangles of the object
+        batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices_mutual}, indices=self.triangle_indices_mutual)
+        shader.uniform_float("color", (1.0, 1.0, 0.0, 0.25))  # Green with 50% transparency
         batch.draw(shader)
 
         #draw line from selected object to mutual object, this is done by getting average coordinates of the bounding box
@@ -188,16 +263,20 @@ def draw_callback_pv(self, context):
         obj_to_mutual_line = (tuple(avg_obj_bound.tolist()), tuple(avg_mutual_obj_bound.tolist()))
         shader = gpu.shader.from_builtin('UNIFORM_COLOR')
         batch = batch_for_shader(shader, 'LINES', {"pos": obj_to_mutual_line})  
-        shader.uniform_float("color", (1, 1, 0, 1)) #yellow   
+        shader.uniform_float("color", (1, 1, 0, 0.25)) #yellow   
         batch.draw(shader)
 
     #draw boundboxes for planes
-    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-    shader.uniform_float("color", (0, 0.5, 1, 1)) #blue
     if self.plane_count > 0:
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+        shader.uniform_float("color", (0, 0.5, 1, 0.25)) #blue
+        gpu.state.blend_set('ALPHA')
+        gpu.state.line_width_set(2.0)
         for obj in self.FastHenry_plane_col.objects:
             plane_bound_coords = obj_bounds(obj)
-            batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
+            plane_vertices, plane_triangle_indices = get_object_triangles(obj)
+            # batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
+            batch = batch_for_shader(shader, 'TRIS', {"pos": plane_vertices}, indices=plane_triangle_indices)
             batch.draw(shader)
 
     # restore opengl defaults
@@ -227,11 +306,19 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
 
+            # Get the vertices and triangles of the active object
+            self.vertices, self.triangle_indices = get_object_triangles(current_obj)
+            
+            # # Get the evaluated vertices and edges of the active object
+            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
+
             #check for mutual inductance
             if self.no_of_objs > 1:
                 mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
                 self.mutual_bound_coords = obj_bounds(mutual_obj)
                 self.mutual_obj_name_to_display = mutual_obj.name
+                # Get the vertices and triangles of the mutual object
+                self.vertices_mutual, self.triangle_indices_mutual = get_object_triangles(mutual_obj)
 
             ### planes
             if self.FastHenry_plane_col is None:
@@ -261,7 +348,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
         ###events
 
-        if event.type == 'UP_ARROW' and event.value == 'PRESS':
+        if event.type == 'DOWN_ARROW' and event.value == 'PRESS':
             self.obj_index += 1
             if self.obj_index == self.no_of_objs:
                 self.obj_index = 0
@@ -269,18 +356,32 @@ class BFH_OP_result_draw(bpy.types.Operator):
             current_obj = self.FastHenry_col.objects[self.obj_index]  
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
+
+            # Get the vertices and triangles of the active object
+            self.vertices, self.triangle_indices = get_object_triangles(current_obj)
+
+            # # Get the evaluated vertices and edges of the active object
+            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
+                                                                        
             return {'RUNNING_MODAL'}
             
-        elif event.type == 'DOWN_ARROW' and event.value == 'PRESS':
+        elif event.type == 'UP_ARROW' and event.value == 'PRESS':
             self.obj_index -=1
             if self.obj_index == -1:
                 self.obj_index = self.no_of_objs -1
             current_obj = self.FastHenry_col.objects[self.obj_index]  
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
+
+            # Get the vertices and triangles of the active object
+            self.vertices, self.triangle_indices = get_object_triangles(current_obj)
+
+            # # Get the evaluated vertices and edges of the active object
+            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
+
             return {'RUNNING_MODAL'}
 
-        elif event.type == 'RIGHT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
+        elif event.type == 'LEFT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
             self.mutual_obj_index += 1
             if self.mutual_obj_index == self.obj_index:
                 self.mutual_obj_index +=1
@@ -293,9 +394,13 @@ class BFH_OP_result_draw(bpy.types.Operator):
             mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
             self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
             self.mutual_obj_name_to_display = mutual_obj.name
+
+            # Get the vertices and triangles of the mutual object
+            self.vertices_mutual, self.triangle_indices_mutual = get_object_triangles(mutual_obj)
+
             return {'RUNNING_MODAL'}
         
-        elif event.type == 'LEFT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
+        elif event.type == 'RIGHT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
             self.mutual_obj_index -=1
             if self.mutual_obj_index == self.obj_index:
                 self.mutual_obj_index -=1
@@ -308,6 +413,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
             mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
             self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
             self.mutual_obj_name_to_display = mutual_obj.name
+
+            # Get the vertices and triangles of the mutual object
+            self.vertices_mutual, self.triangle_indices_mutual = get_object_triangles(mutual_obj)
+
             return {'RUNNING_MODAL'}
         
         if event.type in {'MIDDLEMOUSE', 'MOUSEMOVE'}:
@@ -395,7 +504,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
         
 
 def menu_func(self, context):
-    self.layout.operator(BFH_OP_result_draw.bl_idname, text="Modal Draw Operator2")
+    self.layout.operator(BFH_OP_result_draw.bl_idname, text="BFH Result Draw Operator")
 
 # Register and add to the "view" menu (required to also use F3 search "Modal Draw Operator" for quick access).
 def register():
