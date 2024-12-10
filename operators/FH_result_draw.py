@@ -24,7 +24,56 @@ def init():
     else:
         # Default font.
         font_info["font_id"] = 0
+
+# Function to get the evaluated edges (with modifiers applied)
+def get_evaluated_edges(obj):
+    if obj.type != 'MESH':
+        return [], []
+
+    # Get the evaluated object
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = obj.evaluated_get(depsgraph)
+    eval_mesh = eval_obj.to_mesh()
+
+    # Transform vertex coordinates to world space
+    vertices = [obj.matrix_world @ v.co for v in eval_mesh.vertices]
+
+    # Extract edge indices
+    edge_indices = [(edge.vertices[0], edge.vertices[1]) for edge in eval_mesh.edges]
+
+    # Release the evaluated mesh
+    eval_obj.to_mesh_clear()
+
+    return vertices, edge_indices
+
+# Function to get the evaluated mesh (with modifiers applied) and extract vertex and triangle data
+def get_object_triangles(obj):
+    if obj.type != 'MESH':
+        return [], []
+
+    # Get the evaluated object
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = obj.evaluated_get(depsgraph)
+    eval_mesh = eval_obj.to_mesh()
+
+    # Transform vertex coordinates to world space
+    vertices = [obj.matrix_world @ v.co for v in eval_mesh.vertices]
+
+    # Extract triangle indices
+    triangle_indices = []
+    for poly in eval_mesh.polygons:
+        if len(poly.vertices) == 3:
+            triangle_indices.append((poly.vertices[0], poly.vertices[1], poly.vertices[2]))
+        elif len(poly.vertices) == 4:  # Handle quads
+            triangle_indices.append((poly.vertices[0], poly.vertices[1], poly.vertices[2]))
+            triangle_indices.append((poly.vertices[2], poly.vertices[3], poly.vertices[0]))
+
+    # Release the evaluated mesh
+    eval_obj.to_mesh_clear()
     
+    return vertices, triangle_indices
+
+
 def obj_bounds(obj):
     #get bounding box vertices of object with transform 
     mat_world = obj.matrix_world
@@ -166,14 +215,34 @@ def draw_callback_pv(self, context):
     #draw bounding boxes 
 
     if len(self.trans_bound_coords) == 0:
-        print("returned")
         return
     
-    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-    batch = batch_for_shader(shader, 'LINES', {"pos": self.trans_bound_coords}, indices=self.indices)
+    # if not self.vertices or not self.edge_indices:
+    #     return
     
-    shader.uniform_float("color", (1, 0, 0, 1)) #red
+    if not self.vertices or not self.triangle_indices:
+        return
+
+    # TRI draw shader
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    gpu.state.blend_set('ALPHA')
+    gpu.state.line_width_set(2.0)
+
+    # Create the batch for drawing the triangles of the object
+    batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices}, indices=self.triangle_indices)
+    shader.uniform_float("color", (0.0, 1.0, 0.0, 0.25))  # Green with 50% transparency
     batch.draw(shader)
+
+    # # Edge draw shader
+    # shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    # gpu.state.blend_set('ALPHA')
+    # gpu.state.line_width_set(2.0)
+
+    # # Create the batch for drawing the edges of the object
+    # batch = batch_for_shader(shader, 'LINES', {"pos": self.vertices}, indices=self.edge_indices)
+    # shader.uniform_float("color", (0.0, 1.0, 0.0, 0.5))  # Green with 50% transparency
+    # batch.draw(shader)
+    
 
     if self.no_of_objs > 1 and self.mutual_obj_index != self.obj_index:
         shader = gpu.shader.from_builtin('UNIFORM_COLOR')
@@ -192,9 +261,9 @@ def draw_callback_pv(self, context):
         batch.draw(shader)
 
     #draw boundboxes for planes
-    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-    shader.uniform_float("color", (0, 0.5, 1, 1)) #blue
     if self.plane_count > 0:
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+        shader.uniform_float("color", (0, 0.5, 1, 1)) #blue
         for obj in self.FastHenry_plane_col.objects:
             plane_bound_coords = obj_bounds(obj)
             batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
@@ -226,6 +295,12 @@ class BFH_OP_result_draw(bpy.types.Operator):
             current_obj = self.FastHenry_col.objects[self.obj_index] 
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
+
+            # Get the vertices and triangles of the active object
+            self.vertices, self.triangle_indices = get_object_triangles(current_obj)
+            
+            # # Get the evaluated vertices and edges of the active object
+            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
 
             #check for mutual inductance
             if self.no_of_objs > 1:
@@ -269,6 +344,13 @@ class BFH_OP_result_draw(bpy.types.Operator):
             current_obj = self.FastHenry_col.objects[self.obj_index]  
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
+
+            # Get the vertices and triangles of the active object
+            self.vertices, self.triangle_indices = get_object_triangles(current_obj)
+
+            # # Get the evaluated vertices and edges of the active object
+            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
+                                                                        
             return {'RUNNING_MODAL'}
             
         elif event.type == 'DOWN_ARROW' and event.value == 'PRESS':
@@ -278,6 +360,13 @@ class BFH_OP_result_draw(bpy.types.Operator):
             current_obj = self.FastHenry_col.objects[self.obj_index]  
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
+
+            # Get the vertices and triangles of the active object
+            self.vertices, self.triangle_indices = get_object_triangles(current_obj)
+
+            # # Get the evaluated vertices and edges of the active object
+            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
+
             return {'RUNNING_MODAL'}
 
         elif event.type == 'RIGHT_ARROW' and event.value == 'PRESS' and self.no_of_objs > 1: #only activate of there are more than one objects
