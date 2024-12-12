@@ -30,6 +30,8 @@ class BFH_property_group(bpy.types.PropertyGroup):
 
     #overide_geonodes: BoolProperty(name="Overide Geonodes", default = False)  #type: ignore
 
+    mesh_scale: FloatProperty(name="mesh scale", default =1) #type: ignore
+    
     units_enum: bpy.props.EnumProperty(             #type: ignore
     name = " FH Units", 
     description = "Units",

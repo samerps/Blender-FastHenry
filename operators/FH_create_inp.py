@@ -20,6 +20,7 @@ def create_inp(self, context):
     zdefault = 0
     sigma = my_properties.conductivity*1000 #fasthenry sigma units 1/(mm*Ohms)
     units = my_properties.units_enum
+    scale = my_properties.mesh_scale
 
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
@@ -37,8 +38,8 @@ def create_inp(self, context):
         if obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers:
             obj_mesh = obj.to_mesh()
 
-            w = obj.modifiers["BFH_curve"]["Socket_2"] 
-            h = obj.modifiers["BFH_curve"]["Socket_3"]
+            w = obj.modifiers["BFH_curve"]["Socket_2"]*scale 
+            h = obj.modifiers["BFH_curve"]["Socket_3"]*scale
 
             #get vertices of selected object
             object_vertices = obj_mesh.vertices
@@ -46,7 +47,7 @@ def create_inp(self, context):
             vertex_co_global = []
 
             for vertex in object_vertices:
-                vertex_co_global.append(mat_world @ vertex.co)
+                vertex_co_global.append((mat_world @ vertex.co) * scale)
 
             first_node_index = node_index
             last_node_index = node_index + len(vertex_co_global)-1
@@ -76,7 +77,7 @@ def create_inp(self, context):
             vertex_co_global = []
 
             for vertex in object_vertices:
-                vertex_co_global.append(mat_world @ vertex.co)
+                vertex_co_global.append((mat_world @ vertex.co) * scale)
 
             first_node_index = node_index
             last_node_index = node_index + len(vertex_co_global)-1
@@ -89,8 +90,8 @@ def create_inp(self, context):
             ###ELEMENTS
             textfile.write('* SEGMENTS \n')
             for i in range(len(vertex_co_global)-1):
-                w = obj.data.attributes["width"].data[i].value
-                h = obj.data.attributes["thickness"].data[i].value
+                w = obj.data.attributes["width"].data[i].value * scale
+                h = obj.data.attributes["thickness"].data[i].value * scale
                 textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
                 element_index +=1
             
@@ -107,12 +108,12 @@ def create_inp(self, context):
             #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
             seg1 = obj.modifiers["BFH_plane"]["Socket_8"]-1    
             seg2 = obj.modifiers["BFH_plane"]["Socket_10"]-1
-            thickness = obj.modifiers["BFH_plane"]["Socket_9"]
+            thickness = obj.modifiers["BFH_plane"]["Socket_9"] * scale
 
             obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
-            vert0 = obj.attributes['vert0'].data[0].vector
-            vert1 = obj.attributes['vert1'].data[0].vector
-            vert3 = obj.attributes['vert3'].data[0].vector
+            vert0 = obj.attributes['vert0'].data[0].vector * scale
+            vert1 = obj.attributes['vert1'].data[0].vector * scale
+            vert3 = obj.attributes['vert3'].data[0].vector * scale
   
             textfile.write('GFHPlane{} \n' .format(j))
             textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
