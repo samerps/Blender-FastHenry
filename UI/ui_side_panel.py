@@ -53,6 +53,7 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.separator()
 
         col.prop(my_properties, 'INP_file_name', text = "INP File Name")
+        col.prop(my_properties, 'mesh_scale', text ="Mesh scale")
         col.prop(my_properties, 'units_enum', text = "units")
         col.prop(my_properties, 'fmin', text ="fmin (MHz)")
         col.prop(my_properties, 'fmultiplier', text ="decades")
