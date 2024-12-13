@@ -32,10 +32,18 @@ def create_inp(self, context):
   
     node_index = 1
     element_index = 1
+
+    sim_selected = my_properties.sim_selected
     
     for obj in self.FastHenry_col.objects:
+        if sim_selected:
+            if obj in bpy.context.selected_objects:
+                pass
+            else:
+                continue
+
         ### if object is a curve with FH_Curve modifier
-        if obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers:
+        if obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers:           
             obj_mesh = obj.to_mesh()
 
             w = obj.modifiers["BFH_curve"]["Socket_2"]*scale 
