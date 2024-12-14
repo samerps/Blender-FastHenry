@@ -195,7 +195,8 @@ def draw_callback_px(self, context):
                 blf.position(font_id, xpos, ypos, 0)
 
     ### draw plane texts
-    xpos += text_width
+    #xpos += text_width
+    xpos = xpos_store*1.5
     xpos_store = xpos 
     #xpos_m += text_width 
     ypos = self.text_pos[1]-text_height*1.25
@@ -353,7 +354,7 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 if self.mutual_obj_index != self.obj_index:
                     self.mutual_inductance_display.append(self.inductance[i][j][k])
                 else:
-                    self.mutual_inductance_display.append(0)
+                    self.mutual_inductance_display.append(np.int8(0))
                  
         np.set_printoptions(formatter={'float': lambda x: format(x, '.2E')})
 
