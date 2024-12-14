@@ -350,7 +350,10 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.mutual_inductance_display = []
             k = self.mutual_obj_index
             for i in range(len(self.frequency)):
-                self.mutual_inductance_display.append(self.inductance[i][j][k])
+                if self.mutual_obj_index != self.obj_index:
+                    self.mutual_inductance_display.append(self.inductance[i][j][k])
+                else:
+                    self.mutual_inductance_display.append(0)
                  
         np.set_printoptions(formatter={'float': lambda x: format(x, '.2E')})
 
