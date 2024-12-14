@@ -46,6 +46,8 @@ class BFH_property_group(bpy.types.PropertyGroup):
     curve_collection: PointerProperty(type=bpy.types.Collection) #type: ignore
     plane_collection: PointerProperty(type=bpy.types.Collection) #type: ignore
 
+    sim_selected: BoolProperty(name="sim selected", default = False)  #type: ignore
+
     FH_running: BoolProperty(name= "FH running", default = False,  options={'SKIP_SAVE'}) #type: ignore
     FH_finished: BoolProperty(name= "FH finished", default = True, options={'SKIP_SAVE'}) #type: ignore
 

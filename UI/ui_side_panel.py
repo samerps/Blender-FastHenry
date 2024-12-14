@@ -44,6 +44,9 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.label(text="Collections")
         col.separator()
         col.prop(my_properties, 'curve_collection', text ="Curves")
+        col.separator()
+        col.prop(my_properties, 'sim_selected', text ="Simulate selected only", toggle=True)
+        col.separator()
         col.prop(my_properties, 'plane_collection', text ="Planes")
 
         ####setup

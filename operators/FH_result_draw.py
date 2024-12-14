@@ -302,7 +302,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
         if self.first_run == True:
             self.obj_index = 0
             self.first_run = False
-            current_obj = self.FastHenry_col.objects[self.obj_index] 
+
+            if self.sim_selected:
+                current_obj = bpy.context.selected_objects[self.obj_index]
+            else:
+                current_obj = self.FastHenry_col.objects[self.obj_index] 
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
 
@@ -313,8 +317,12 @@ class BFH_OP_result_draw(bpy.types.Operator):
             # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
 
             #check for mutual inductance
-            if self.no_of_objs > 1:
-                mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+            if self.no_of_objs > 1 or len(bpy.context.selected_objects) > 1:
+                if self.sim_selected:
+                    mutual_obj = bpy.context.selected_objects[self.mutual_obj_index]
+                else:
+                    mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+
                 self.mutual_bound_coords = obj_bounds(mutual_obj)
                 self.mutual_obj_name_to_display = mutual_obj.name
                 # Get the vertices and triangles of the mutual object
@@ -352,8 +360,12 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.obj_index += 1
             if self.obj_index == self.no_of_objs:
                 self.obj_index = 0
-
-            current_obj = self.FastHenry_col.objects[self.obj_index]  
+            
+            if self.sim_selected:
+                current_obj = bpy.context.selected_objects[self.obj_index]
+            else:
+                current_obj = self.FastHenry_col.objects[self.obj_index]  
+            
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
 
@@ -369,7 +381,12 @@ class BFH_OP_result_draw(bpy.types.Operator):
             self.obj_index -=1
             if self.obj_index == -1:
                 self.obj_index = self.no_of_objs -1
-            current_obj = self.FastHenry_col.objects[self.obj_index]  
+
+            if self.sim_selected:
+                current_obj = bpy.context.selected_objects[self.obj_index]
+            else:
+                current_obj = self.FastHenry_col.objects[self.obj_index] 
+
             self.trans_bound_coords = obj_bounds(current_obj)
             self.obj_name_to_display = current_obj.name
 
@@ -391,7 +408,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 else:
                     self.mutual_obj_index = 0
 
-            mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+            if self.sim_selected:
+                mutual_obj = bpy.context.selected_objects[self.mutual_obj_index]
+            else:
+                mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index] 
+
             self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
             self.mutual_obj_name_to_display = mutual_obj.name
 
@@ -410,7 +431,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 else:
                     self.mutual_obj_index = self.no_of_objs -1
                     
-            mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index]
+            if self.sim_selected:
+                mutual_obj = bpy.context.selected_objects[self.mutual_obj_index]
+            else:
+                mutual_obj = self.FastHenry_col.objects[self.mutual_obj_index] 
+
             self.mutual_bound_coords = obj_bounds(mutual_obj) #get world transformed coordinates of bounding box around mutual object
             self.mutual_obj_name_to_display = mutual_obj.name
 
@@ -473,8 +498,14 @@ class BFH_OP_result_draw(bpy.types.Operator):
             else:
                 self.FastHenry_col = my_properties.curve_collection
                 self.FastHenry_plane_col = my_properties.plane_collection
+                self.sim_selected = my_properties.sim_selected
                 reject_objects.reject_objects(self, context, my_properties)
-                self.no_of_objs = len(self.FastHenry_col.objects)
+
+                # this needs to be rewritten once storing object name in CSV data is implemented, it is better then to compare objects names instead of using len
+                if my_properties.sim_selected:
+                    self.no_of_objs = len(bpy.context.selected_objects)
+                else:
+                    self.no_of_objs = len(self.FastHenry_col.objects)
                 self.obj_index = 0
                 self.mutual_obj_index = 1
             
