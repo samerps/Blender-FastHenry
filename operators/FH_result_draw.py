@@ -149,6 +149,7 @@ def draw_callback_px(self, context):
             xpos += text_width * 1.25
             blf.position(font_id, xpos, ypos, 0)
 
+        xpos_store = xpos + text_width
     
     ### draw mutual inductance texts
     # if self.no_of_objs == 1  or self.mutual_obj_index == self.obj_index:
