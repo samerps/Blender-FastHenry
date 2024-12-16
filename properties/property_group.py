@@ -13,7 +13,7 @@ class BFH_property_group(bpy.types.PropertyGroup):
     resistance_result: FloatVectorProperty(name="resistance result", size = 5, default = [0,0,0,0,0])   #type: ignore
     frequency_list: FloatVectorProperty(name="frequency list", size = 5, default = [0,0,0,0,0])                      #type: ignore
 
-    fmin: FloatProperty(name="min frequency", min = 0, default = 0.1)         #type: ignore
+    fmin: FloatProperty(name="min frequency", min = 0.00001, default = 0.1)         #type: ignore
     fmax: FloatProperty(name="max frequency", min = 0, default = 10)         #type: ignore
     ndec: IntProperty(name="ndec", min = 1, max=4, default =1)                            #type: ignore
     fmultiplier: IntProperty(name="fmultiplier", min=0, max=4, default=0)          # type: ignore
