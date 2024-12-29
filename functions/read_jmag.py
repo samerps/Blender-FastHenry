@@ -11,10 +11,10 @@ def read_jmag():
     file_path = basedir + "//" + "Jmag.csv"
 
     if os.path.isfile(file_path):
-        read_status = "file exist"
+        Jmag_exist = True
     else:
-        read_status = "no Jmag file"
-        return read_status
+        Jmag_exist = False
+        return Jmag_exist, None, None
 
     # Read the CSV file
     with open(file_path, newline='', encoding='utf-8-sig') as csvfile:
@@ -26,28 +26,43 @@ def read_jmag():
 
     # Determine grid spacing
     dx, dy, dz = determine_grid_size(valid_rows)
-    print(f"Grid spacing: dx = {dx}, dy = {dy}, dz = {dz}")
+    #print(f"Grid spacing: dx = {dx}, dy = {dy}, dz = {dz}")
 
     # Determine ranges for the two directions dynamically
     n = len([row for row in valid_rows if float(row[3]) != 0 and float(row[4]) == 0])
+    
     m = len(valid_rows)
+    
+
+    #create "Visualize Currents" collections
+    collections = bpy.data.collections
+    col_names = []
+    for col in collections:
+        col_names.append(col.name)
+    if 'Visualize Currents' not in col_names:
+        bpy.data.collections.new('Visualize Currents')
+        bpy.context.scene.collection.children.link(bpy.data.collections['Visualize Currents'])
+
+    visualize_currents_col = bpy.data.collections['Visualize Currents']
+
+    # check if visualize current objects "Current_X_Direction" and "Current_Y_Direction" already exist, if so delete them
+    for obj in visualize_currents_col.objects:
+        if obj.name == "Current_X_Direction":
+            visualize_currents_col.objects.unlink(obj)
+            bpy.data.objects.remove(obj)
+
+        elif obj.name == "Current_Y_Direction":
+            visualize_currents_col.objects.unlink(obj)
+            bpy.data.objects.remove(obj)
 
     # Create objects for the two edge directions
-    create_edge_object_with_attributes(
-        "Edges_X_Direction",
-        valid_rows[:n],
-        Vector((1.0, 0.0, 0.0)),
-        -dx
-    )
+    obj_Current_X_Direction = create_edge_object_with_attributes("Current_X_Direction", valid_rows[:n], Vector((1.0, 0.0, 0.0)), -dx)
+    visualize_currents_col.objects.link(obj_Current_X_Direction)
 
-    create_edge_object_with_attributes(
-        "Edges_Y_Direction",
-        valid_rows[n:m],
-        Vector((0.0, 1.0, 0.0)),
-        dy
-    )
+    obj_Current_Y_Direction = create_edge_object_with_attributes("Current_Y_Direction", valid_rows[n:m], Vector((0.0, 1.0, 0.0)), dy)
+    visualize_currents_col.objects.link(obj_Current_Y_Direction)
 
-    return read_status
+    return Jmag_exist, obj_Current_X_Direction, obj_Current_Y_Direction
 
 
 # Ranges for the two directions will be determined dynamically
@@ -102,7 +117,7 @@ def create_edge_object_with_attributes(object_name, rows, edge_vector, scale_fac
     # Create a new mesh and object
     mesh = bpy.data.meshes.new(f"{object_name}Mesh")
     obj = bpy.data.objects.new(object_name, mesh)
-    bpy.context.collection.objects.link(obj)
+    #bpy.context.collection.objects.link(obj)
 
     vertices = []
     edges = []
@@ -139,4 +154,6 @@ def create_edge_object_with_attributes(object_name, rows, edge_vector, scale_fac
         attr_layer.data[i].vector = attr_vector
 
     mesh.update()
+
+    return obj
 

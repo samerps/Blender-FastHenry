@@ -28,10 +28,40 @@ class BFH_visualize_currents(bpy.types.Operator):
         elif not bpy.data.is_saved:
             self.report({'WARNING'}, "File must be saved first")
             return {'CANCELLED'}
+       
+        # read Jmag files and create two objects "Current_X/Y_direction" in a new "Visualize Currents" collection,
+        Jmag_exist, obj_Current_X_Direction, obj_Current_Y_Direction = read_jmag.read_jmag()
+        if Jmag_exist == False:
+            self.report({'WARNING'}, "No Jmag file")
+            return {'CANCELLED'}
+        
+        visualize_currents_col = bpy.data.collections['Visualize Currents']
+        
+        # check if "BFH_visualize_currents" node group exist. If not, append it
+        if "BFH_Visualize_Currents" not in bpy.data.node_groups:
+            with bpy.data.libraries.load(my_properties.BFH_nodegroup_path) as (data_from, data_to):
+                data_to.node_groups.append("BFH_Visualize_Currents")
+        
+        # check if "Visualize Currents" object exist. If not, create it and assigne nodegroup to it 
+        obj_names = []
+        for obj in visualize_currents_col.objects:
+            obj_names.append(obj.name)
+        if "Visualize Currents" not in obj_names:
+            mesh = bpy.data.meshes.new("Visualize Currents")
+            obj = bpy.data.objects.new("Visualize Currents", mesh)
+            visualize_currents_col.objects.link(obj)
 
-        read_jmag.read_jmag
+        for nodegroup in bpy.data.node_groups:
+            if nodegroup.name == "BFH_Visualize_Currents":
+                obj_mod = obj.modifiers.new("BFH_Visualize_Currents", "NODES")
+                obj_mod.node_group = nodegroup
+
+        obj.modifiers["BFH_Visualize_Currents"]["Socket_2"] = obj_Current_X_Direction
+        obj.modifiers["BFH_Visualize_Currents"]["Socket_3"] = obj_Current_Y_Direction
 
         return {'FINISHED'}
+
+        
 
 
 def menu_func(self, context):
