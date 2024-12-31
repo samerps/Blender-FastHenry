@@ -35,6 +35,18 @@ class BFH_visualize_currents(bpy.types.Operator):
             self.report({'WARNING'}, "No Jmag file")
             return {'CANCELLED'}
         
+        # change object scale based on units set in properties
+        units_enum = my_properties.units_enum
+        if units_enum == 'mm':
+            scale_mul = 1000
+        elif units_enum == 'cm':
+            scale_mul = 100
+        elif units_enum == 'm':
+            scale_mul = 1
+
+        obj_Current_X_Direction.scale *= scale_mul/my_properties.mesh_scale
+        obj_Current_Y_Direction.scale *= scale_mul/my_properties.mesh_scale
+
         visualize_currents_col = bpy.data.collections['Visualize Currents']
         
         # check if "BFH_visualize_currents" node group exist. If not, append it
