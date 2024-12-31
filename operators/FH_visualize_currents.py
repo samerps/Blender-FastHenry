@@ -46,6 +46,10 @@ class BFH_visualize_currents(bpy.types.Operator):
 
         obj_Current_X_Direction.scale *= scale_mul/my_properties.mesh_scale
         obj_Current_Y_Direction.scale *= scale_mul/my_properties.mesh_scale
+        obj_Current_X_Direction.hide_viewport = True
+        obj_Current_Y_Direction.hide_viewport = True
+        obj_Current_X_Direction.hide_render = True
+        obj_Current_Y_Direction.hide_render = True
 
         visualize_currents_col = bpy.data.collections['Visualize Currents']
         
@@ -54,14 +58,14 @@ class BFH_visualize_currents(bpy.types.Operator):
             with bpy.data.libraries.load(my_properties.BFH_nodegroup_path) as (data_from, data_to):
                 data_to.node_groups.append("BFH_Visualize_Currents")
         
-        # check if "Visualize Currents" object exist. If not, create it and assigne nodegroup to it 
-        obj_names = []
+        # check if "Visualize Currents" object exist. If not, create it and assign nodegroup to it 
         for obj in visualize_currents_col.objects:
-            obj_names.append(obj.name)
-        if "Visualize Currents" not in obj_names:
-            mesh = bpy.data.meshes.new("Visualize Currents")
-            obj = bpy.data.objects.new("Visualize Currents", mesh)
-            visualize_currents_col.objects.link(obj)
+            if obj.name == "Visualize Currents":
+                bpy.data.objects.remove(obj, do_unlink=True)
+
+        mesh = bpy.data.meshes.new("Visualize Currents")
+        obj = bpy.data.objects.new("Visualize Currents", mesh)
+        visualize_currents_col.objects.link(obj)
 
         for nodegroup in bpy.data.node_groups:
             if nodegroup.name == "BFH_Visualize_Currents":
