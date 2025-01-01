@@ -74,6 +74,7 @@ class BFH_visualize_currents(bpy.types.Operator):
 
         obj.modifiers["BFH_Visualize_Currents"]["Socket_2"] = obj_Current_X_Direction
         obj.modifiers["BFH_Visualize_Currents"]["Socket_3"] = obj_Current_Y_Direction
+        obj.modifiers["BFH_Visualize_Currents"]["Socket_4"] = my_properties.plane_collection
 
         return {'FINISHED'}
 
