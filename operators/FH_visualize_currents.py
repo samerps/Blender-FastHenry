@@ -10,12 +10,12 @@ class BFH_visualize_currents(bpy.types.Operator):
     bl_idname = "view3d.bfh_visualize_currents"
     bl_label = "BFH visualize currents"
 
-    #check if bpy.data.filepath exists, this indicate if the blend file actually exists in a directory
+    #check if number of planes is no more than one
     @classmethod
     def poll(cls, context):
         my_properties = context.scene.BFH_properties
-        FastHenry_col = my_properties.curve_collection
-        return bpy.data.filepath != "" and FastHenry_col is not None
+        FastHenry_plane_col = my_properties.plane_collection
+        return len(FastHenry_plane_col.objects) == 1
 
     def execute(self, context):
 
