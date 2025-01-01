@@ -61,7 +61,7 @@ class BFH_visualize_currents(bpy.types.Operator):
         # check if "Visualize Currents" object exist. If not, create it and assign nodegroup to it 
         for obj in visualize_currents_col.objects:
             if obj.name == "Visualize Currents":
-                bpy.data.objects.remove(obj, do_unlink=True)
+                bpy.data.meshes.remove(obj.data)
 
         mesh = bpy.data.meshes.new("Visualize Currents")
         obj = bpy.data.objects.new("Visualize Currents", mesh)

@@ -49,11 +49,11 @@ def read_jmag():
     for obj in visualize_currents_col.objects:
         if obj.name == "Current_X_Direction":
             visualize_currents_col.objects.unlink(obj)
-            bpy.data.objects.remove(obj, do_unlink=True)
+            bpy.data.meshes.remove(obj.data)
 
         elif obj.name == "Current_Y_Direction":
             visualize_currents_col.objects.unlink(obj)
-            bpy.data.objects.remove(obj, do_unlink=True)
+            bpy.data.meshes.remove(obj.data)
 
     # Create objects for the two edge directions
     obj_Current_X_Direction = create_edge_object_with_attributes("Current_X_Direction", valid_rows[:n], Vector((1.0, 0.0, 0.0)), -dx)
