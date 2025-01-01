@@ -34,7 +34,7 @@ def run_FastHenry(self, context):
     
     try:
         # Run the .exe file asynchronously
-        self.process = subprocess.Popen([self.exe_path, self.input_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.process = subprocess.Popen([self.exe_path, self.input_file, "-d", "grids"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # for line in iter(self.process.stdout.readline, ''):
         #     print(f"[Output]: {line.strip()}")
