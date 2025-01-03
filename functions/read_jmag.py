@@ -1,14 +1,22 @@
 import bpy # type: ignore
 import os
 import csv
+import struct
 from mathutils import Vector # type: ignore
 
 # Path to the CSV file
 def read_jmag():
 
+    # Define the structure format (12 doubles)
+    # 12 doubles: x, y, z, real_xv, real_yv, real_zv, imag_xv, imag_yv, imag_zv, mag_xv, mag_yv, mag_zv
+    struct_format = '<12d'  # Little-endian, 12 doubles (8 bytes each)
+    struct_size = struct.calcsize(struct_format)
+
+    rows = []
+
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
-    file_path = basedir + "//" + "Jmag.csv"
+    file_path = basedir + "//" + "Jcurrents.bin"
 
     if os.path.isfile(file_path):
         Jmag_exist = True
@@ -17,9 +25,23 @@ def read_jmag():
         return Jmag_exist, None, None
 
     # Read the CSV file
-    with open(file_path, newline='', encoding='utf-8-sig') as csvfile:
-        reader = csv.reader(csvfile)
-        rows = list(reader)
+    with open(file_path, "rb") as f:
+        while True:
+            data = f.read(struct_size)
+            if not data:
+                break  # End of file
+
+            # Unpack the binary data
+            unpacked_data = struct.unpack(struct_format, data)
+            x, y, z = unpacked_data[0:3]
+            mag_xv, mag_yv, mag_zv = unpacked_data[9:12]
+
+            # Write to CSV
+            rows.append([x, y, z, mag_xv, mag_yv, mag_zv])
+
+    # with open(file_path, newline='', encoding='utf-8-sig') as csvfile:
+    #     reader = csv.reader(csvfile)
+    #     rows = list(reader)
 
     # Filter valid rows
     valid_rows = filter_valid_rows(rows)
