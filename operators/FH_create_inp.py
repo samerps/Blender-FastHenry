@@ -34,6 +34,30 @@ def create_inp(self, context):
     element_index = 1
 
     sim_selected = my_properties.sim_selected
+
+    ##planes
+    textfile.write('* Planes \n')
+    if self.plane_col:
+        for j, obj in enumerate(self.plane_col.objects):
+            
+            #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
+            seg1 = obj.modifiers["BFH_plane"]["Socket_8"]-1    
+            seg2 = obj.modifiers["BFH_plane"]["Socket_10"]-1
+            thickness = obj.modifiers["BFH_plane"]["Socket_9"] * scale
+
+            obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+            vert0 = obj.attributes['vert0'].data[0].vector * scale
+            vert1 = obj.attributes['vert1'].data[0].vector * scale
+            vert3 = obj.attributes['vert3'].data[0].vector * scale
+  
+            textfile.write('GFHPlane{} \n' .format(j))
+            textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
+            textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
+            textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
+            textfile.write('+ thick = {} \n' .format(thickness))
+            textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
+
+    
     
     for obj in self.FastHenry_col.objects:
         if sim_selected:
@@ -41,6 +65,21 @@ def create_inp(self, context):
                 pass
             else:
                 continue
+
+        ### Save reference points if connected to plane
+        if obj.modifiers["BFH_curve"]["Socket_7"]:
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            eval_obj = obj.evaluated_get(depsgraph)
+            eval_mesh = eval_obj.to_mesh()
+            mat_world = obj.matrix_world
+
+            plane_pos1 = mat_world @ eval_mesh.attributes["plane_point1"].data[0].vector
+            plane_pos2 = mat_world @ eval_mesh.attributes["plane_point2"].data[0].vector
+
+            ### SAVE REFERENCE TO PLANE POINTS  
+            textfile.write('* SAVE PLANE POINTS \n')
+            textfile.write('+ nin ({},{},{}) \n' .format(plane_pos1.x*scale, plane_pos1.y*scale,  vert0.z))
+            textfile.write('+ nout ({},{},{}) \n' .format(plane_pos2.x*scale, plane_pos2.y*scale,  vert0.z))
 
         ### if object is a curve with FH_Curve modifier
         if obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers:           
@@ -65,15 +104,41 @@ def create_inp(self, context):
                 textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
                 node_index +=1
 
+            # ### Save reference points if connected to plane
+            # if obj.modifiers["BFH_curve"]["Socket_7"]:
+            #     depsgraph = bpy.context.evaluated_depsgraph_get()
+            #     eval_obj = obj.evaluated_get(depsgraph)
+            #     eval_mesh = eval_obj.to_mesh()
+            #     plane_pos1 = eval_mesh.attributes["plane_point1"].data[0].vector
+            #     plane_pos2 = eval_mesh.attributes["plane_point2"].data[0].vector
+
+            #     ### SAVE REFERENCE TO PLANE POINTS  
+            #     textfile.write('* SAVE PLANE POINTS \n')
+            #     textfile.write('nin ({},{},{}) \n' .format(plane_pos1.x, plane_pos1.y, plane_pos1.z))
+            #     textfile.write('nout ({},{},{}) \n' .format(plane_pos2.x, plane_pos2.y, plane_pos2.z))
+            
             ###ELEMENTS
             textfile.write('* SEGMENTS \n')
             for i in range(len(vertex_co_global)-1):
                 textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
                 element_index +=1
             
+            # ### SAVE REFERENCE TO FIRST AND LAST NODES 
+            # textfile.write('* SAVE FIRST AND LAST NODES \n')
+            # textfile.write('nin ({},{},{}) \n' .format(vertex_co_global[0].x, vertex_co_global[0].y, vertex_co_global[0].z))
+            # textfile.write('nout ({},{},{}) \n' .format(vertex_co_global[last_node_index].x, vertex_co_global[last_node_index].y, vertex_co_global[last_node_index].z))
+
+           
+            ## Check if connected to plane 
             ###PORT
-            textfile.write('* PORTS \n')
-            textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
+            if not obj.modifiers["BFH_curve"]["Socket_7"]:
+                textfile.write('* PORTS \n')
+                textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
+            else:
+                # Get the evaluated object
+                textfile.write(".equiv nin N1 \n")
+                textfile.write('.external N{} nout \n' .format(last_node_index))
+
 
             obj.to_mesh_clear()
 
@@ -108,27 +173,27 @@ def create_inp(self, context):
             textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
 
 
-    ##planes
-    textfile.write('* Planes \n')
-    if self.plane_col:
-        for j, obj in enumerate(self.plane_col.objects):
+    # ##planes
+    # textfile.write('* Planes \n')
+    # if self.plane_col:
+    #     for j, obj in enumerate(self.plane_col.objects):
             
-            #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
-            seg1 = obj.modifiers["BFH_plane"]["Socket_8"]-1    
-            seg2 = obj.modifiers["BFH_plane"]["Socket_10"]-1
-            thickness = obj.modifiers["BFH_plane"]["Socket_9"] * scale
+    #         #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
+    #         seg1 = obj.modifiers["BFH_plane"]["Socket_8"]-1    
+    #         seg2 = obj.modifiers["BFH_plane"]["Socket_10"]-1
+    #         thickness = obj.modifiers["BFH_plane"]["Socket_9"] * scale
 
-            obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
-            vert0 = obj.attributes['vert0'].data[0].vector * scale
-            vert1 = obj.attributes['vert1'].data[0].vector * scale
-            vert3 = obj.attributes['vert3'].data[0].vector * scale
+    #         obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+    #         vert0 = obj.attributes['vert0'].data[0].vector * scale
+    #         vert1 = obj.attributes['vert1'].data[0].vector * scale
+    #         vert3 = obj.attributes['vert3'].data[0].vector * scale
   
-            textfile.write('GFHPlane{} \n' .format(j))
-            textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
-            textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
-            textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
-            textfile.write('+ thick = {} \n' .format(thickness))
-            textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
+    #         textfile.write('GFHPlane{} \n' .format(j))
+    #         textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
+    #         textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
+    #         textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
+    #         textfile.write('+ thick = {} \n' .format(thickness))
+    #         textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
             
     
     ###FREQUENCY RANGE
