@@ -57,7 +57,6 @@ def create_inp(self, context):
             textfile.write('+ thick = {} \n' .format(thickness))
             textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
 
-    
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
             if obj in bpy.context.selected_objects:
@@ -77,8 +76,8 @@ def create_inp(self, context):
 
             ### SAVE REFERENCE TO PLANE POINTS  
             textfile.write('* SAVE PLANE POINTS \n')
-            textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x*scale, plane_pos1.y*scale,  vert0.z))
-            textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x*scale, plane_pos2.y*scale,  vert0.z))
+            textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x*scale, plane_pos1.y*scale,  plane_pos1.z*scale))
+            textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x*scale, plane_pos2.y*scale,  plane_pos2.z*scale))
     
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
@@ -126,7 +125,6 @@ def create_inp(self, context):
                 textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
                 textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
 
-
             obj.to_mesh_clear()
 
         ### if object is a mesh with "BFH_var_segment" modifier
@@ -173,7 +171,6 @@ class BFH_OP_create_inp(bpy.types.Operator):
         my_properties = context.scene.BFH_properties
         FastHenry_col = my_properties.curve_collection
         return FastHenry_col is not None
-
 
         # return context.active_object is not None
 
