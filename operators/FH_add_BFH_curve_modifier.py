@@ -17,9 +17,15 @@ class BFH_add_curve_modifier(bpy.types.Operator):
 
         my_properties = context.scene.BFH_properties
 
-        selected_obj = bpy.context.selected_objects[0]
-        if selected_obj is None:
-            return
+        try:
+            selected_obj = bpy.context.selected_objects[0]  # Attempt to get the first selected object
+            if selected_obj is None or selected_obj.type != 'CURVE':  # Ensure it's a valid curve object
+                self.report({'WARNING'}, "No valid curve object selected")
+                return {'FINISHED'}
+        except IndexError:
+            # Handles the case where no objects are selected
+            self.report({'WARNING'}, "No object selected")
+            return {'FINISHED'}
         
         #check if object already has BFH_curve modifier
 
