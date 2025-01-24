@@ -65,7 +65,7 @@ def create_inp(self, context):
                 continue
         
         ### Save reference points if connected to plane
-        if obj.modifiers["BFH_curve"]["Socket_7"]:
+        if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
             depsgraph = bpy.context.evaluated_depsgraph_get()
             eval_obj = obj.evaluated_get(depsgraph)
             eval_mesh = eval_obj.to_mesh()
@@ -117,13 +117,13 @@ def create_inp(self, context):
            
             ## Check if connected to plane 
             ###PORT
-            if not obj.modifiers["BFH_curve"]["Socket_7"]:
-                textfile.write('* PORTS \n')
-                textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
-            else:
-                # Get the evaluated object
+            if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
                 textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
                 textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
+            else:
+                # Get the evaluated object
+                textfile.write('* PORTS \n')
+                textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
 
             obj.to_mesh_clear()
 
