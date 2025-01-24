@@ -23,6 +23,7 @@ class BFH_add_FHplane(bpy.types.Operator):
         selected_obj.data.name = "BFH_plane"
         selected_obj.name = "BFH_plane"
         selected_obj.lock_rotation = [True, True, True]
+        selected_obj.show_wire = True
 
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
