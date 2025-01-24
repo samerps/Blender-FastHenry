@@ -15,7 +15,8 @@ class BFH_visualize_currents(bpy.types.Operator):
     def poll(cls, context):
         my_properties = context.scene.BFH_properties
         FastHenry_plane_col = my_properties.plane_collection
-        return len(FastHenry_plane_col.objects) == 1 and my_properties.sim_selected
+        if FastHenry_plane_col is not None:
+            return len(FastHenry_plane_col.objects) == 1 and my_properties.sim_selected
 
     def execute(self, context):
 
