@@ -57,6 +57,13 @@ def create_inp(self, context):
             textfile.write('+ thick = {} \n' .format(thickness))
             textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
 
+            #get plane holes
+            bool_max1 = obj.attributes['bool_max1'].data[0].vector * scale
+            bool_min1 = obj.attributes['bool_min1'].data[0].vector * scale
+
+            textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
+
+
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
             if obj in bpy.context.selected_objects:
