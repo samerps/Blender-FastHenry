@@ -62,7 +62,11 @@ def create_inp(self, context):
             bool_max1 = (mat_world @ obj.attributes['bool_max1'].data[0].vector) * scale
             bool_min1 = (mat_world @ obj.attributes['bool_min1'].data[0].vector) * scale
 
+            bool_max2 = (mat_world @ obj.attributes['bool_max2'].data[0].vector) * scale
+            bool_min2 = (mat_world @ obj.attributes['bool_min2'].data[0].vector) * scale
+
             textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
+            textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
 
 
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):

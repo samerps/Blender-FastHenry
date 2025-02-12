@@ -32,7 +32,15 @@ class BFH_add_FHplane(bpy.types.Operator):
             with bpy.data.libraries.load(my_properties.BFH_nodegroup_path) as (data_from, data_to):
                 data_to.node_groups.append("BFH_plane")
         
+        if "BFH_plane_booleans" not in bpy.data.node_groups:
+            with bpy.data.libraries.load(my_properties.BFH_nodegroup_path) as (data_from, data_to):
+                data_to.node_groups.append("BFH_plane_booleans")
+        
         for nodegroup in bpy.data.node_groups:
+            if nodegroup.name == "BFH_plane_booleans":
+                selected_obj_mod = selected_obj.modifiers.new("BFH_plane", "NODES")
+                selected_obj_mod.node_group = nodegroup
+
             if nodegroup.name == "BFH_plane":
                 selected_obj_mod = selected_obj.modifiers.new("BFH_plane", "NODES")
                 selected_obj_mod.node_group = nodegroup
