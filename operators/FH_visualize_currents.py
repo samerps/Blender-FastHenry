@@ -72,11 +72,19 @@ class BFH_visualize_currents(bpy.types.Operator):
             if nodegroup.name == "BFH_Visualize_Currents":
                 obj_mod = obj.modifiers.new("BFH_Visualize_Currents", "NODES")
                 obj_mod.node_group = nodegroup
+            
+            # if nodegroup.name == "BFH_plane_booleans":
+            #     obj_mod = obj.modifiers.new("BFH_plane_booleans", "NODES")
+            #     obj_mod.node_group = nodegroup
 
         obj.modifiers["BFH_Visualize_Currents"]["Socket_2"] = obj_Current_X_Direction
         obj.modifiers["BFH_Visualize_Currents"]["Socket_3"] = obj_Current_Y_Direction
         obj.modifiers["BFH_Visualize_Currents"]["Socket_4"] = my_properties.plane_collection
 
+        # for mod in obj.modifiers:
+        #     if mod.name == "BFH_plane_booleans":
+        #         mod.use_pin_to_last = True
+                
         return {'FINISHED'}
 
         

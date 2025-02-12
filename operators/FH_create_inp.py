@@ -45,6 +45,7 @@ def create_inp(self, context):
             seg2 = obj.modifiers["BFH_plane"]["Socket_10"]-1
             thickness = obj.modifiers["BFH_plane"]["Socket_9"] * scale
 
+            mat_world = obj.matrix_world
             obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
             vert0 = obj.attributes['vert0'].data[0].vector * scale
             vert1 = obj.attributes['vert1'].data[0].vector * scale
@@ -56,6 +57,17 @@ def create_inp(self, context):
             textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
             textfile.write('+ thick = {} \n' .format(thickness))
             textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
+
+            #get plane holes
+            bool_max1 = (mat_world @ obj.attributes['bool_max1'].data[0].vector) * scale
+            bool_min1 = (mat_world @ obj.attributes['bool_min1'].data[0].vector) * scale
+
+            bool_max2 = (mat_world @ obj.attributes['bool_max2'].data[0].vector) * scale
+            bool_min2 = (mat_world @ obj.attributes['bool_min2'].data[0].vector) * scale
+
+            textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
+            textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
+
 
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
@@ -71,13 +83,13 @@ def create_inp(self, context):
             eval_mesh = eval_obj.to_mesh()
             mat_world = obj.matrix_world
 
-            plane_pos1 = mat_world @ eval_mesh.attributes["plane_point1"].data[0].vector
-            plane_pos2 = mat_world @ eval_mesh.attributes["plane_point2"].data[0].vector
+            plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[0].vector) * scale
+            plane_pos2 = (mat_world @ eval_mesh.attributes["plane_point2"].data[0].vector) * scale
 
             ### SAVE REFERENCE TO PLANE POINTS  
             textfile.write('* SAVE PLANE POINTS \n')
-            textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x*scale, plane_pos1.y*scale,  plane_pos1.z*scale))
-            textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x*scale, plane_pos2.y*scale,  plane_pos2.z*scale))
+            textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x, plane_pos1.y,  plane_pos1.z))
+            textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x, plane_pos2.y,  plane_pos2.z))
     
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
