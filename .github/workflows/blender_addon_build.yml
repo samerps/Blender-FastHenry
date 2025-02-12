@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Blender Addon Build
-        uses: BlenderKit/blender-addon-build-action@v1
+        uses: blenderkit/blender-addon-build@main
         with:
           name: 'Blender FastHenry'
           name-suffix: 'none'
