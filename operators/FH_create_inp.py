@@ -123,28 +123,6 @@ def create_inp(self, context):
                 plane_pos = plane_points_dict[unique_id][j]
                 textfile.write('+ {} ({:.6f},{:.6f},{:.6f}) \n'.format(ref, plane_pos.x, plane_pos.y, plane_pos.z))
                 
-
-    # for obj_idx, obj in enumerate(self.FastHenry_col.objects):
-    #     if sim_selected:
-    #         if obj in bpy.context.selected_objects:
-    #             pass
-    #         else:
-    #             continue
-        
-        # ### write plane reference points from dictionaries 
-        # if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
-        #     depsgraph = bpy.context.evaluated_depsgraph_get()
-        #     eval_obj = obj.evaluated_get(depsgraph)
-        #     eval_mesh = eval_obj.to_mesh()
-        #     mat_world = obj.matrix_world
-
-        #     plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[0].vector) * scale
-        #     plane_pos2 = (mat_world @ eval_mesh.attributes["plane_point2"].data[0].vector) * scale
-
-        #     ### SAVE REFERENCE TO PLANE POINTS  
-        #     textfile.write('* SAVE PLANE POINTS \n')
-        #     textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x, plane_pos1.y,  plane_pos1.z))
-        #     textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x, plane_pos2.y,  plane_pos2.z))
     
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
