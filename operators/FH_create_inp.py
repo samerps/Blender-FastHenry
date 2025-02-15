@@ -80,9 +80,6 @@ def create_inp(self, context):
             curve_indx_dict[plane_unique_id_point2].append("nout"+str(obj_idx))
 
 
-    print(curve_indx_dict)
-    print(plane_points_dict)
-
     textfile.write('* Planes \n')
     if self.plane_col:
         unique_id_key_list = list(plane_points_dict.keys())
