@@ -46,5 +46,6 @@ class BFH_add_curve_modifier(bpy.types.Operator):
             if nodegroup.name == "BFH_curve":
                 selected_obj_mod = selected_obj.modifiers.new("BFH_curve", "NODES")
                 selected_obj_mod.node_group = nodegroup
+                selected_obj.show_wire = True
         
         return {'FINISHED'}
