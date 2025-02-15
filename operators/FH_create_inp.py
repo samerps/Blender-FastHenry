@@ -26,7 +26,7 @@ def create_inp(self, context):
     os.chdir(basedir)
 
     textfile = open(my_properties.INP_file_name + ".inp", "w")
-    textfile.write('* Blender Fast Henry Output' + '\n') #fasthenry format first line must contain a comment
+    textfile.write('* Blender FastHenry Output' + '\n') #fasthenry format first line must contain a comment
     textfile.write('.units ' + units +  '\n')
     textfile.write('.default z={} sigma={} nhinc={} nwinc={} rh={} rw={} \n' .format(zdefault, sigma, nhinc, nwinc, rh, rw))
   
@@ -36,8 +36,56 @@ def create_inp(self, context):
     sim_selected = my_properties.sim_selected
 
     ##planes
+
+    #create two dictionaries with plane unique_id as key, one to hold plane connect coordinates and another to hold indecies of the curves that connect to the plane
+    if self.plane_col:
+        plane_points_dict = {}
+        curve_indx_dict = {}
+        for obj in self.plane_col.objects:
+            obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+            unique_id = obj.attributes['unique_id'].data[0].value 
+            plane_points_dict[unique_id] = []
+            curve_indx_dict[unique_id] = [] 
+            
+
+    for obj_idx, obj in enumerate(self.FastHenry_col.objects):
+        if sim_selected:
+            if obj in bpy.context.selected_objects:
+                pass
+            else:
+                continue
+        
+        ### for each curve, if connected to a plane, get the coordinates of the connection and the unique_id of connected plane and add them to the dictionary
+        # note that each curve (if connected to a plane) will have two connection points to a plane
+        # the geo node attributes (4 in total) are "plane_point1/2" and "plane_unique_id_point1/2"
+        # attributes "plane_point1" and "plane_unique_id_point1" are located in the last indices 3 and 4 indices of the BFH_curve modifier
+        # attributes "plane_point2" and "plane_unique_id_point2" are located in the last 1 and 2 indices of the BFH_curve modifier        
+        
+        if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            eval_obj = obj.evaluated_get(depsgraph)
+            eval_mesh = eval_obj.to_mesh()
+            mat_world = obj.matrix_world
+            
+            last_node_index = len(eval_mesh.vertices) - 1
+            plane_unique_id_point1 =  eval_mesh.attributes["plane_unique_id_point1"].data[last_node_index-2].value
+            plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[last_node_index-2].vector) * scale
+
+            plane_points_dict[plane_unique_id_point1].append(plane_pos1)
+            curve_indx_dict[plane_unique_id_point1].append("nin"+str(obj_idx))
+
+            plane_unique_id_point2 =  eval_mesh.attributes["plane_unique_id_point2"].data[last_node_index].value
+            plane_pos2 = (mat_world @ eval_mesh.attributes["plane_point2"].data[last_node_index].vector) * scale
+            plane_points_dict[plane_unique_id_point2].append(plane_pos2)
+            curve_indx_dict[plane_unique_id_point2].append("nout"+str(obj_idx))
+
+
+    print(curve_indx_dict)
+    print(plane_points_dict)
+
     textfile.write('* Planes \n')
     if self.plane_col:
+        unique_id_key_list = list(plane_points_dict.keys())
         for j, obj in enumerate(self.plane_col.objects):
             
             #need a better way to get actual socket names instead of socket numbers, code will break if socket arrangement got changed
@@ -68,28 +116,35 @@ def create_inp(self, context):
             textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
             textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
 
-
-    for obj_idx, obj in enumerate(self.FastHenry_col.objects):
-        if sim_selected:
-            if obj in bpy.context.selected_objects:
-                pass
-            else:
-                continue
-        
-        ### Save reference points if connected to plane
-        if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
-            depsgraph = bpy.context.evaluated_depsgraph_get()
-            eval_obj = obj.evaluated_get(depsgraph)
-            eval_mesh = eval_obj.to_mesh()
-            mat_world = obj.matrix_world
-
-            plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[0].vector) * scale
-            plane_pos2 = (mat_world @ eval_mesh.attributes["plane_point2"].data[0].vector) * scale
-
-            ### SAVE REFERENCE TO PLANE POINTS  
+            # write plane reference points from dictionaries
             textfile.write('* SAVE PLANE POINTS \n')
-            textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x, plane_pos1.y,  plane_pos1.z))
-            textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x, plane_pos2.y,  plane_pos2.z))
+            unique_id = unique_id_key_list[j]
+            for j, ref in enumerate(curve_indx_dict[unique_id]):
+                plane_pos = plane_points_dict[unique_id][j]
+                textfile.write('+ {} ({},{},{}) \n'.format(ref, plane_pos.x, plane_pos.y, plane_pos.z))
+                
+
+    # for obj_idx, obj in enumerate(self.FastHenry_col.objects):
+    #     if sim_selected:
+    #         if obj in bpy.context.selected_objects:
+    #             pass
+    #         else:
+    #             continue
+        
+        # ### write plane reference points from dictionaries 
+        # if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
+        #     depsgraph = bpy.context.evaluated_depsgraph_get()
+        #     eval_obj = obj.evaluated_get(depsgraph)
+        #     eval_mesh = eval_obj.to_mesh()
+        #     mat_world = obj.matrix_world
+
+        #     plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[0].vector) * scale
+        #     plane_pos2 = (mat_world @ eval_mesh.attributes["plane_point2"].data[0].vector) * scale
+
+        #     ### SAVE REFERENCE TO PLANE POINTS  
+        #     textfile.write('* SAVE PLANE POINTS \n')
+        #     textfile.write('+ nin{} ({},{},{}) \n' .format(obj_idx, plane_pos1.x, plane_pos1.y,  plane_pos1.z))
+        #     textfile.write('+ nout{} ({},{},{}) \n' .format(obj_idx, plane_pos2.x, plane_pos2.y,  plane_pos2.z))
     
     for obj_idx, obj in enumerate(self.FastHenry_col.objects):
         if sim_selected:
