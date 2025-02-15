@@ -142,7 +142,7 @@ def create_inp(self, context):
             vertex_co_global = []
 
             for vertex in object_vertices:
-                vertex_co_global.append((mat_world @ vertex.co) * scale + random_unit_vector(size=3)*1e-6)
+                vertex_co_global.append((mat_world @ vertex.co) * scale + random_unit_vector(size=3)*1e-5)
 
             first_node_index = node_index
             last_node_index = node_index + len(vertex_co_global)-1
@@ -178,7 +178,7 @@ def create_inp(self, context):
             vertex_co_global = []
 
             for vertex in object_vertices:
-                vertex_co_global.append((mat_world @ vertex.co) * scale + random_unit_vector(size=3)*1e-6)
+                vertex_co_global.append((mat_world @ vertex.co) * scale + random_unit_vector(size=3)*1e-5)
 
             first_node_index = node_index
             last_node_index = node_index + len(vertex_co_global)-1
