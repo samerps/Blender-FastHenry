@@ -100,10 +100,10 @@ def create_inp(self, context):
             vert3 = obj.attributes['vert3'].data[0].vector * scale
   
             textfile.write('GFHPlane{} \n' .format(j))
-            textfile.write('+ x1={} y1={} z1={} \n' .format(vert0.x, vert0.y, vert0.z))
-            textfile.write('+ x2={} y2={} z2={} \n' .format(vert1.x, vert1.y, vert1.z))
-            textfile.write('+ x3={} y3={} z3={} \n' .format(vert3.x, vert3.y, vert3.z))
-            textfile.write('+ thick = {} \n' .format(thickness))
+            textfile.write('+ x1={:.6f} y1={:.6f} z1={:.6f} \n' .format(vert0.x, vert0.y, vert0.z))
+            textfile.write('+ x2={:.6f} y2={:.6f} z2={:.6f} \n' .format(vert1.x, vert1.y, vert1.z))
+            textfile.write('+ x3={:.6f} y3={:.6f} z3={:.6f} \n' .format(vert3.x, vert3.y, vert3.z))
+            textfile.write('+ thick = {:.6f} \n' .format(thickness))
             textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
 
             #get plane holes
@@ -113,15 +113,15 @@ def create_inp(self, context):
             bool_max2 = (mat_world @ obj.attributes['bool_max2'].data[0].vector) * scale
             bool_min2 = (mat_world @ obj.attributes['bool_min2'].data[0].vector) * scale
 
-            textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
-            textfile.write('+ hole rect ({},{},{},{},{},{}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
+            textfile.write('+ hole rect ({:.6f},{:.6f},{:.6f},{:.6f},{:.6f},{:.6f}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
+            textfile.write('+ hole rect ({:.6f},{:.6f},{:.6f},{:.6f},{:.6f},{:.6f}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
 
             # write plane reference points from dictionaries
             textfile.write('* SAVE PLANE POINTS \n')
             unique_id = unique_id_key_list[j]
             for j, ref in enumerate(curve_indx_dict[unique_id]):
                 plane_pos = plane_points_dict[unique_id][j]
-                textfile.write('+ {} ({},{},{}) \n'.format(ref, plane_pos.x, plane_pos.y, plane_pos.z))
+                textfile.write('+ {} ({:.6f},{:.6f},{:.6f}) \n'.format(ref, plane_pos.x, plane_pos.y, plane_pos.z))
                 
 
     # for obj_idx, obj in enumerate(self.FastHenry_col.objects):
@@ -173,13 +173,13 @@ def create_inp(self, context):
             ###NODES
             textfile.write('* NODES \n')
             for co in vertex_co_global:
-                textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
+                textfile.write('N{} x={:.6f} y={:.6f} z={:.6f} \n' .format(node_index, co.x, co.y, co.z))
                 node_index +=1
             
             ###ELEMENTS
             textfile.write('* SEGMENTS \n')
             for i in range(len(vertex_co_global)-1):
-                textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
+                textfile.write('E{} N{} N{} w={:.6f} h={:.6f} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
                 element_index +=1
            
             ## Check if connected to plane 
@@ -209,7 +209,7 @@ def create_inp(self, context):
             ###NODES
             textfile.write('* NODES \n')
             for co in vertex_co_global:
-                textfile.write('N{} x={} y={} z={} \n' .format(node_index, co.x, co.y, co.z))
+                textfile.write('N{} x={:.6f} y={:.6f} z={:.6f} \n' .format(node_index, co.x, co.y, co.z))
                 node_index +=1
 
             ###ELEMENTS
@@ -217,7 +217,7 @@ def create_inp(self, context):
             for i in range(len(vertex_co_global)-1):
                 w = obj.data.attributes["width"].data[i].value * scale
                 h = obj.data.attributes["thickness"].data[i].value * scale
-                textfile.write('E{} N{} N{} w={} h={} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
+                textfile.write('E{} N{} N{} w={:.6f} h={:.6f} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
                 element_index +=1
             
             ###PORT
