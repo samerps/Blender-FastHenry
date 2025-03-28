@@ -92,10 +92,10 @@ def create_inp(self, context):
             thickness = obj.modifiers["BFH_plane"]["Socket_9"] * scale
 
             mat_world = obj.matrix_world
-            obj = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
-            vert0 = obj.attributes['vert0'].data[0].vector * scale
-            vert1 = obj.attributes['vert1'].data[0].vector * scale
-            vert3 = obj.attributes['vert3'].data[0].vector * scale
+            obj_eval = obj.evaluated_get(bpy.context.evaluated_depsgraph_get()).data
+            vert0 = obj_eval.attributes['vert0'].data[0].vector * scale
+            vert1 = obj_eval.attributes['vert1'].data[0].vector * scale
+            vert3 = obj_eval.attributes['vert3'].data[0].vector * scale
   
             textfile.write('GFHPlane{} \n' .format(j))
             textfile.write('+ x1={:.8f} y1={:.8f} z1={:.8f} \n' .format(vert0.x, vert0.y, vert0.z))
@@ -105,14 +105,16 @@ def create_inp(self, context):
             textfile.write('+ seg1 = {} seg2 = {} \n' .format(seg1, seg2))
 
             #get plane holes
-            bool_max1 = (mat_world @ obj.attributes['bool_max1'].data[0].vector) * scale
-            bool_min1 = (mat_world @ obj.attributes['bool_min1'].data[0].vector) * scale
+            bool_max1 = (mat_world @ obj_eval.attributes['bool_max1'].data[0].vector) * scale
+            bool_min1 = (mat_world @ obj_eval.attributes['bool_min1'].data[0].vector) * scale
 
-            bool_max2 = (mat_world @ obj.attributes['bool_max2'].data[0].vector) * scale
-            bool_min2 = (mat_world @ obj.attributes['bool_min2'].data[0].vector) * scale
+            bool_max2 = (mat_world @ obj_eval.attributes['bool_max2'].data[0].vector) * scale
+            bool_min2 = (mat_world @ obj_eval.attributes['bool_min2'].data[0].vector) * scale
 
-            textfile.write('+ hole rect ({:.8f},{:.8f},{:.8f},{:.8f},{:.8f},{:.8f}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
-            textfile.write('+ hole rect ({:.8f},{:.8f},{:.8f},{:.8f},{:.8f},{:.8f}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
+            if obj.modifiers["BFH_plane_booleans"]["Socket_10"]:
+                textfile.write('+ hole rect ({:.8f},{:.8f},{:.8f},{:.8f},{:.8f},{:.8f}) \n' .format(bool_max1.x, bool_max1.y, bool_max1.z, bool_min1.x, bool_min1.y, bool_min1.z))
+            if obj.modifiers["BFH_plane_booleans"]["Socket_12"]:
+                textfile.write('+ hole rect ({:.8f},{:.8f},{:.8f},{:.8f},{:.8f},{:.8f}) \n' .format(bool_max2.x, bool_max2.y, bool_max2.z, bool_min2.x, bool_min2.y, bool_min2.z))
 
             # write plane reference points from dictionaries
             textfile.write('* SAVE PLANE POINTS \n')

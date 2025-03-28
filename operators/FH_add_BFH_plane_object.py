@@ -38,7 +38,7 @@ class BFH_add_FHplane(bpy.types.Operator):
         
         for nodegroup in bpy.data.node_groups:
             if nodegroup.name == "BFH_plane_booleans":
-                selected_obj_mod = selected_obj.modifiers.new("BFH_plane", "NODES")
+                selected_obj_mod = selected_obj.modifiers.new("BFH_plane_booleans", "NODES")
                 selected_obj_mod.node_group = nodegroup
 
             if nodegroup.name == "BFH_plane":
