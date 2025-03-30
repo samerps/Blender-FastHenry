@@ -5,7 +5,7 @@ import struct
 from mathutils import Vector # type: ignore
 import numpy as np
 
-# Path to the CSV file
+# Path to the binary file
 def read_jmag():
 
     # Define the structure format (12 doubles)
@@ -25,7 +25,7 @@ def read_jmag():
         Jmag_exist = False
         return Jmag_exist, None, None
 
-    # Read the CSV file
+    # Read the binary file
     with open(file_path, "rb") as f:
         while True:
             data = f.read(struct_size)
@@ -37,7 +37,6 @@ def read_jmag():
             x, y, z = unpacked_data[0:3]
             mag_xv, mag_yv, mag_zv = unpacked_data[9:12]
 
-            # Write to CSV
             rows.append([x, y, z, mag_xv, mag_yv, mag_zv])
 
     # Filter valid rows
