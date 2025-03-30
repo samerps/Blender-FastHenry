@@ -3,6 +3,7 @@ import os
 import csv
 import struct
 from mathutils import Vector # type: ignore
+import numpy as np
 
 # Path to the CSV file
 def read_jmag():
@@ -13,7 +14,7 @@ def read_jmag():
     struct_size = struct.calcsize(struct_format)
 
     rows = []
-
+    
     basedir = os.path.dirname(bpy.data.filepath)
     os.chdir(basedir)
     file_path = basedir + "//" + "Jcurrents.bin"
@@ -39,10 +40,6 @@ def read_jmag():
             # Write to CSV
             rows.append([x, y, z, mag_xv, mag_yv, mag_zv])
 
-    # with open(file_path, newline='', encoding='utf-8-sig') as csvfile:
-    #     reader = csv.reader(csvfile)
-    #     rows = list(reader)
-
     # Filter valid rows
     valid_rows = filter_valid_rows(rows)
 
@@ -55,7 +52,6 @@ def read_jmag():
     
     m = len(valid_rows)
     
-
     #create "Visualize Currents" collections
     collections = bpy.data.collections
     col_names = []
@@ -132,50 +128,55 @@ def filter_valid_rows(rows):
             continue  # Skip invalid rows
     return valid_rows
 
+
 def create_edge_object_with_attributes(object_name, rows, edge_vector, scale_factor):
     """
-    Create a Blender object from CSV rows, assigning attributes to the EDGE domain.
+    Create a Blender object from CSV rows, assigning attributes to the EDGE domain. From ChatGPT
     """
     # Create a new mesh and object
     mesh = bpy.data.meshes.new(f"{object_name}Mesh")
     obj = bpy.data.objects.new(object_name, mesh)
-    #bpy.context.collection.objects.link(obj)
 
     vertices = []
     edges = []
     attributes = []  # To store vector attributes
+    vertex_dict = {}  # Use dictionary for fast lookup
 
-    def find_or_add_vertex(vertex):
-        for i, v in enumerate(vertices):
-            if (v - vertex).length < 1e-6:
-                return i
-        vertices.append(vertex)
-        return len(vertices) - 1
+    def find_or_add_vertex(vertex_tuple):
+        """Use a dictionary to store and look up vertices efficiently."""
+        if vertex_tuple in vertex_dict:
+            return vertex_dict[vertex_tuple]
+        index = len(vertices)
+        vertices.append(Vector(vertex_tuple))  # Store as Vector
+        vertex_dict[vertex_tuple] = index
+        return index
 
-    for row in rows:
-        if not row or len(row) < 6:
-            continue
+    # Convert `rows` to NumPy array for fast processing
+    rows_np = np.array(rows, dtype=np.float32)
+    valid_rows = rows_np[~np.isnan(rows_np).any(axis=1)]  # Remove NaN rows
 
-        try:
-            x, y, z = map(float, row[:3])
-            attr_x, attr_y, attr_z = map(float, row[3:6])
-        except ValueError:
-            continue
+    for row in valid_rows:
+        x, y, z, attr_x, attr_y, attr_z = row[:6]  # Faster unpacking
 
-        start = Vector((x, y, z))
-        end = start + (edge_vector * scale_factor)
-        start_idx = find_or_add_vertex(start)
-        end_idx = find_or_add_vertex(end)
+        start_tuple = (x, y, z)
+        end_tuple = (x + edge_vector.x * scale_factor, 
+                     y + edge_vector.y * scale_factor, 
+                     z + edge_vector.z * scale_factor)
+
+        start_idx = find_or_add_vertex(start_tuple)
+        end_idx = find_or_add_vertex(end_tuple)
+        
         edges.append((start_idx, end_idx))
-        attributes.append(Vector((attr_x, attr_y, attr_z)))
+        attributes.append(Vector((attr_x*1e-3, attr_y*1e-3, attr_z*1e-3)))
 
+    # Apply all data at once 
     mesh.from_pydata(vertices, edges, [])
     attr_layer = mesh.attributes.new(name="c_edge", type='FLOAT_VECTOR', domain='EDGE')
 
+    # Vectorized attribute assignment (avoid loop if possible)
     for i, attr_vector in enumerate(attributes):
         attr_layer.data[i].vector = attr_vector
 
     mesh.update()
-
     return obj
 
