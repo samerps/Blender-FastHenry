@@ -167,7 +167,7 @@ def create_inp(self, context):
 
                 #check if plane interconect
                 if (obj.modifiers["BFH_curve"]["Socket_11"]):
-                    textfile.write(".equiv N{} nout{} \n" .format(obj_idx, first_node_index))
+                    textfile.write(".equiv N{} nout{} \n" .format(last_node_index, obj_idx))
                 else:
                     textfile.write('* PORTS \n')
                     textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
@@ -255,6 +255,25 @@ class BFH_OP_create_inp(bpy.types.Operator):
                 return {'CANCELLED'}
             
             create_inp(self, context)
+
+            #move plane interconnect curves to a new collection 
+            #first create collection, if not already created
+            collections = bpy.data.collections
+            curve_col = collections['curves']
+            col_names = []
+            for col in collections:
+                col_names.append(col.name)
+            if 'inter_curves' not in col_names:
+                inter_curve_col = bpy.data.collections.new('inter_curves')
+                curve_col.children.link(inter_curve_col)
+
+            for obj in bpy.data.collections['curves'].objects:
+                if (obj.modifiers["BFH_curve"]["Socket_11"]):
+                    obj.select_set(True)
+                    curve_col.objects.unlink(obj)
+                    inter_curve_col.objects.link(obj)
+
+
             self.report({'INFO'}, "INP file created in blend file directory, rejected " + str(no_rejected_objects) + " objects")
             return {'FINISHED'}
 

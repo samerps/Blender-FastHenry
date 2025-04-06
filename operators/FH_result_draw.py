@@ -520,10 +520,15 @@ class BFH_OP_result_draw(bpy.types.Operator):
                 reject_objects.reject_objects(self, context, my_properties)
 
                 # this needs to be rewritten once storing object name in CSV data is implemented, it is better then to compare objects names instead of using len
+                self.no_of_objs = 0
                 if my_properties.sim_selected:
                     self.no_of_objs = len(bpy.context.selected_objects)
                 else:
-                    self.no_of_objs = len(self.FastHenry_col.objects)
+                    for obj in self.FastHenry_col.objects:
+                        #count objects in collection excluding plane interconnect curves
+                        if not obj.modifiers["BFH_curve"]["Socket_11"]:
+                            self.no_of_objs +=1
+
                 self.obj_index = 0
                 self.mutual_obj_index = 1
             
