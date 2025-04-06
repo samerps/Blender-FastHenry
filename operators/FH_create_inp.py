@@ -49,7 +49,7 @@ def create_inp(self, context):
             curve_indx_dict[unique_id] = [] 
             
 
-    for obj_idx, obj in enumerate(self.FastHenry_col.objects):
+    for obj_idx, obj in enumerate(self.FastHenry_col.all_objects):
         if sim_selected:
             if obj in bpy.context.selected_objects:
                 pass
@@ -124,7 +124,7 @@ def create_inp(self, context):
                 textfile.write('+ {} ({:.8f},{:.8f},{:.8f}) \n'.format(ref, plane_pos.x, plane_pos.y, plane_pos.z))
                 
     
-    for obj_idx, obj in enumerate(self.FastHenry_col.objects):
+    for obj_idx, obj in enumerate(self.FastHenry_col.all_objects):
         if sim_selected:
             if obj in bpy.context.selected_objects:
                 pass
