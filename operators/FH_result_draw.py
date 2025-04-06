@@ -241,6 +241,7 @@ def draw_callback_pv(self, context):
             batch.draw(shader)
     
     # TRI draw shader
+    #draw curve and mutual objects
     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     gpu.state.blend_set('ALPHA')
     gpu.state.line_width_set(2.0)
@@ -249,17 +250,6 @@ def draw_callback_pv(self, context):
     batch = batch_for_shader(shader, 'TRIS', {"pos": self.vertices}, indices=self.triangle_indices)
     shader.uniform_float("color", (1.0, 0.1, 0.0, 0.25))  # Green with 50% transparency
     batch.draw(shader)
-
-    # # Edge draw shader
-    # shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-    # gpu.state.blend_set('ALPHA')
-    # gpu.state.line_width_set(2.0)
-
-    # # Create the batch for drawing the edges of the object
-    # batch = batch_for_shader(shader, 'LINES', {"pos": self.vertices}, indices=self.edge_indices)
-    # shader.uniform_float("color", (0.0, 1.0, 0.0, 0.5))  # Green with 50% transparency
-    # batch.draw(shader)
-    
 
     if self.no_of_objs > 1 and self.mutual_obj_index != self.obj_index:
         # TRI draw shader
@@ -281,18 +271,6 @@ def draw_callback_pv(self, context):
         shader.uniform_float("color", (1, 1, 0, 0.25)) #yellow   
         batch.draw(shader)
 
-    # #draw boundboxes for planes
-    # if self.plane_count > 0:
-    #     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
-    #     shader.uniform_float("color", (0, 0.5, 1, 0.25)) #blue
-    #     gpu.state.blend_set('ALPHA')
-    #     gpu.state.line_width_set(2.0)
-    #     for obj in self.FastHenry_plane_col.objects:
-    #         plane_bound_coords = obj_bounds(obj)
-    #         plane_vertices, plane_triangle_indices = get_object_triangles(obj)
-    #         # batch = batch_for_shader(shader, 'LINES', {"pos": plane_bound_coords}, indices=self.indices)
-    #         batch = batch_for_shader(shader, 'TRIS', {"pos": plane_vertices}, indices=plane_triangle_indices)
-    #         batch.draw(shader)
 
     # restore opengl defaults
     gpu.state.line_width_set(1.0)
@@ -390,9 +368,6 @@ class BFH_OP_result_draw(bpy.types.Operator):
             # Get the vertices and triangles of the active object
             self.vertices, self.triangle_indices = get_object_triangles(current_obj)
 
-            # # Get the evaluated vertices and edges of the active object
-            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
-                                                                        
             return {'RUNNING_MODAL'}
             
         elif event.type == 'UP_ARROW' and event.value == 'PRESS':
@@ -410,9 +385,6 @@ class BFH_OP_result_draw(bpy.types.Operator):
 
             # Get the vertices and triangles of the active object
             self.vertices, self.triangle_indices = get_object_triangles(current_obj)
-
-            # # Get the evaluated vertices and edges of the active object
-            # self.vertices, self.edge_indices = get_evaluated_edges(current_obj)
 
             return {'RUNNING_MODAL'}
 
