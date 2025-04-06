@@ -164,7 +164,13 @@ def create_inp(self, context):
             ###PORT
             if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
                 textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
-                textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
+
+                #check if plane interconect
+                if (obj.modifiers["BFH_curve"]["Socket_11"]):
+                    textfile.write(".equiv N{} nout{} \n" .format(obj_idx, first_node_index))
+                else:
+                    textfile.write('* PORTS \n')
+                    textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
             else:
                 # Get the evaluated object
                 textfile.write('* PORTS \n')
