@@ -70,6 +70,7 @@ def create_inp(self, context):
             
             last_node_index = len(eval_mesh.vertices) - 1
             plane_unique_id_point1 =  eval_mesh.attributes["plane_unique_id_point1"].data[last_node_index-2].value
+            print(plane_unique_id_point1)
             plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[last_node_index-2].vector) * scale
 
             plane_points_dict[plane_unique_id_point1].append(plane_pos1)
@@ -259,18 +260,20 @@ class BFH_OP_create_inp(bpy.types.Operator):
             #move plane interconnect curves to a new collection 
             #first create collection, if not already created
             collections = bpy.data.collections
-            curve_col = collections['curves']
+            # curve_col = collections['curves']
             col_names = []
             for col in collections:
                 col_names.append(col.name)
             if 'inter_curves' not in col_names:
                 inter_curve_col = bpy.data.collections.new('inter_curves')
-                curve_col.children.link(inter_curve_col)
+                self.FastHenry_col.children.link(inter_curve_col)
+            else:
+                inter_curve_col = bpy.data.collections['inter_curves']
 
             for obj in bpy.data.collections['curves'].objects:
                 if (obj.modifiers["BFH_curve"]["Socket_11"]):
                     obj.select_set(True)
-                    curve_col.objects.unlink(obj)
+                    self.FastHenry_col.objects.unlink(obj)
                     inter_curve_col.objects.link(obj)
 
 
