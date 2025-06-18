@@ -270,7 +270,7 @@ class BFH_OP_create_inp(bpy.types.Operator):
             else:
                 inter_curve_col = bpy.data.collections['inter_curves']
 
-            for obj in bpy.data.collections['curves'].objects:
+            for obj in self.FastHenry_col.objects:
                 if (obj.modifiers["BFH_curve"]["Socket_11"]):
                     obj.select_set(True)
                     self.FastHenry_col.objects.unlink(obj)
