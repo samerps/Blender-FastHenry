@@ -49,7 +49,7 @@ def create_inp(self, context):
             curve_indx_dict[unique_id] = [] 
             
 
-    for obj_idx, obj in enumerate(self.FastHenry_col.objects):
+    for obj_idx, obj in enumerate(self.FastHenry_col.all_objects):
         if sim_selected:
             if obj in bpy.context.selected_objects:
                 pass
@@ -70,6 +70,7 @@ def create_inp(self, context):
             
             last_node_index = len(eval_mesh.vertices) - 1
             plane_unique_id_point1 =  eval_mesh.attributes["plane_unique_id_point1"].data[last_node_index-2].value
+            print(plane_unique_id_point1)
             plane_pos1 = (mat_world @ eval_mesh.attributes["plane_point1"].data[last_node_index-2].vector) * scale
 
             plane_points_dict[plane_unique_id_point1].append(plane_pos1)
@@ -124,7 +125,7 @@ def create_inp(self, context):
                 textfile.write('+ {} ({:.8f},{:.8f},{:.8f}) \n'.format(ref, plane_pos.x, plane_pos.y, plane_pos.z))
                 
     
-    for obj_idx, obj in enumerate(self.FastHenry_col.objects):
+    for obj_idx, obj in enumerate(self.FastHenry_col.all_objects):
         if sim_selected:
             if obj in bpy.context.selected_objects:
                 pass
@@ -164,7 +165,13 @@ def create_inp(self, context):
             ###PORT
             if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
                 textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
-                textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
+
+                #check if plane interconect
+                if (obj.modifiers["BFH_curve"]["Socket_11"]):
+                    textfile.write(".equiv N{} nout{} \n" .format(last_node_index, obj_idx))
+                else:
+                    textfile.write('* PORTS \n')
+                    textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
             else:
                 # Get the evaluated object
                 textfile.write('* PORTS \n')
@@ -249,6 +256,27 @@ class BFH_OP_create_inp(bpy.types.Operator):
                 return {'CANCELLED'}
             
             create_inp(self, context)
+
+            #move plane interconnect curves to a new collection 
+            #first create collection, if not already created
+            collections = bpy.data.collections
+            # curve_col = collections['curves']
+            col_names = []
+            for col in collections:
+                col_names.append(col.name)
+            if 'inter_curves' not in col_names:
+                inter_curve_col = bpy.data.collections.new('inter_curves')
+                self.FastHenry_col.children.link(inter_curve_col)
+            else:
+                inter_curve_col = bpy.data.collections['inter_curves']
+
+            for obj in self.FastHenry_col.objects:
+                if (obj.modifiers["BFH_curve"]["Socket_11"]):
+                    obj.select_set(True)
+                    self.FastHenry_col.objects.unlink(obj)
+                    inter_curve_col.objects.link(obj)
+
+
             self.report({'INFO'}, "INP file created in blend file directory, rejected " + str(no_rejected_objects) + " objects")
             return {'FINISHED'}
 
