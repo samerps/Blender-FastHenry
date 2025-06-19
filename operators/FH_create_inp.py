@@ -4,6 +4,7 @@
 import bpy #type: ignore
 import os 
 from ..functions import reject_objects
+import mathutils  #type: ignore 
 from mathutils.noise import random_unit_vector  # type: ignore
 
 def create_inp(self, context):
@@ -157,8 +158,47 @@ def create_inp(self, context):
             
             ###ELEMENTS
             textfile.write('* SEGMENTS \n')
-            for i in range(len(vertex_co_global)-1):
-                textfile.write('E{} N{} N{} w={:.8f} h={:.8f} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h))
+
+            # this implements minimum twist method to capture the tangent, normal and binormal of the curve, the binormal is used to define segment orientation
+            # code from ChatGPT, not sure how the method works.
+            # I found if I use the global coordinates, the normal and binormal vectors give wrong orientation, so using local coordinates first and then applying object global tranform when writing to file
+            points = []
+            for vertex in object_vertices:
+                points.append((vertex.co) * scale )# + random_unit_vector(size=3)*1e-5)
+
+            frames = []
+            rotation_matrix = obj.rotation_euler.to_matrix().to_3x3()
+
+            for i in range(len(points) - 1):
+                p0 = points[i]
+                p1 = points[i + 1]
+                tangent = (p1 - p0).normalized()
+
+                if i == 0:
+                    # Choose an up vector not parallel to the tangent
+                    up = mathutils.Vector((0, 0, 1))
+                    if abs(tangent.dot(up)) > 0.99:
+                        up = mathutils.Vector((0, 1, 0))
+                    # Project up onto plane ⟂ tangent
+                    projected = up - tangent * up.dot(tangent)
+                    normal = projected.normalized()
+                else:
+                    prev_tangent, prev_normal, _ = frames[-1]
+                    axis = prev_tangent.cross(tangent)
+                    if axis.length < 1e-6:
+                        normal = prev_normal
+                    else:
+                        angle = prev_tangent.angle(tangent)
+                        rot = mathutils.Matrix.Rotation(angle, 3, axis)
+                        normal = (rot @ prev_normal).normalized()
+
+                binormal = tangent.cross(normal).normalized()
+                frames.append((tangent, normal, binormal))
+
+                rotated_binormal = rotation_matrix @ binormal
+
+
+                textfile.write('E{} N{} N{} w={:.8f} h={:.8f} wx={:.4F} wy={:.4F} wz={:.4F} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h, rotated_binormal.x, rotated_binormal.y, rotated_binormal.z))
                 element_index +=1
            
             ## Check if connected to plane 
