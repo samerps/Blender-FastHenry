@@ -98,6 +98,8 @@ class BFH_PT_sidebar(bpy.types.Panel):
         col.separator()
         col.operator("view3d.bfh_visualize_currents", text ="Visualize Currents")
         col.separator()
+        col.operator("object.bfh_create_spicemodel", text="Create .subckt")
+        col.separator()
         col.operator("object.bfh_run_all", text ="Run All")
 
         ###settings
