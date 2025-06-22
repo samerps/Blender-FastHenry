@@ -174,23 +174,30 @@ def create_inp(self, context):
                 p1 = points[i + 1]
                 tangent = (p1 - p0).normalized()
 
-                if i == 0:
-                    # Choose an up vector not parallel to the tangent
-                    up = mathutils.Vector((0, 0, 1))
-                    if abs(tangent.dot(up)) > 0.99:
-                        up = mathutils.Vector((0, 1, 0))
-                    # Project up onto plane ⟂ tangent
-                    projected = up - tangent * up.dot(tangent)
-                    normal = projected.normalized()
-                else:
-                    prev_tangent, prev_normal, _ = frames[-1]
-                    axis = prev_tangent.cross(tangent)
-                    if axis.length < 1e-6:
-                        normal = prev_normal
+                if bpy.data.node_groups["BFH_curve"].nodes["Set Curve Normal"].mode == "Z_UP":
+                    # Always project global Z onto the plane perpendicular to tangent
+                    z_up = mathutils.Vector((0, 0, 1))
+                    if abs(tangent.dot(z_up)) > 0.99:
+                        z_up = mathutils.Vector((0, 1, 0))
+                    normal = (z_up - tangent * tangent.dot(z_up)).normalized()
+                else: #minimum twisr
+                    if i == 0:
+                        # Choose an up vector not parallel to the tangent
+                        up = mathutils.Vector((0, 0, 1))
+                        if abs(tangent.dot(up)) > 0.99:
+                            up = mathutils.Vector((0, 1, 0))
+                        # Project up onto plane ⟂ tangent
+                        projected = up - tangent * up.dot(tangent)
+                        normal = projected.normalized()
                     else:
-                        angle = prev_tangent.angle(tangent)
-                        rot = mathutils.Matrix.Rotation(angle, 3, axis)
-                        normal = (rot @ prev_normal).normalized()
+                        prev_tangent, prev_normal, _ = frames[-1]
+                        axis = prev_tangent.cross(tangent)
+                        if axis.length < 1e-6:
+                            normal = prev_normal
+                        else:
+                            angle = prev_tangent.angle(tangent)
+                            rot = mathutils.Matrix.Rotation(angle, 3, axis)
+                            normal = (rot @ prev_normal).normalized()
 
                 binormal = tangent.cross(normal).normalized()
                 frames.append((tangent, normal, binormal))
