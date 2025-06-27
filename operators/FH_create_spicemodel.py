@@ -17,8 +17,8 @@ def write_fasthenry_subckt(res_array, ind_array, subckt_name="BFH_inductor"):
     lines = [f".SUBCKT {subckt_name} " + " ".join([f"P{i+1} N{i+1}" for i in range(n)])]
 
     for i in range(n):
-        lines.append(f"R{i+1} P{i+1} n{i+1} {Rmat[i, i]:.6g}")
-        lines.append(f"L{i+1} n{i+1} N{i+1} {Lmat[i, i]:.6g}")
+        lines.append(f"R{i+1} P{i+1} xn{i+1} {Rmat[i, i]:.6g}")
+        lines.append(f"L{i+1} xn{i+1} N{i+1} {Lmat[i, i]:.6g}")
 
     for i in range(n):
         for j in range(i + 1, n):

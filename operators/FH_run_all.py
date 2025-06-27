@@ -37,6 +37,11 @@ class BFH_OP_result_draw(bpy.types.Operator):
             # #run Display Results operator 
             # bpy.ops.view3d.bfh_draw_operator('INVOKE_DEFAULT')
 
+            #run create .subckt
+            bpy.ops.object.bfh_create_spicemodel()
+
+            self.report({'INFO'}, "successful run")
+            
             return {'FINISHED'}
 
 
