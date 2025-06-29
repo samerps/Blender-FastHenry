@@ -2,3 +2,9 @@
 *.zip
 .DS_Store
 *.blend1
+*.csv
+
+demos/b.mat
+demos/Jcurrents.bin
+demos/Zc.mat
+demos/BFH_inductor.subckt
