@@ -135,7 +135,20 @@ def create_inp(self, context):
 
         ### if object is a curve with FH_Curve modifier
         if obj.type == 'CURVE' and 'BFH_curve' in obj.modifiers:           
-            obj_mesh = obj.to_mesh()
+            #obj_mesh = obj.to_mesh()
+
+            #disable BFH_curve modifier so that to evaluate all other modifiers before it 
+            obj.modifiers['BFH_curve'].show_viewport = False
+
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            eval_obj = obj.evaluated_get(depsgraph)
+            obj_mesh = eval_obj.to_mesh()
+
+            #enable BFH_curve modifier 
+            obj.modifiers['BFH_curve'].show_viewport = True
+
+            w = obj.modifiers["BFH_curve"]["Socket_2"]*scale 
+            h = obj.modifiers["BFH_curve"]["Socket_3"]*scale
 
             w = obj.modifiers["BFH_curve"]["Socket_2"]*scale 
             h = obj.modifiers["BFH_curve"]["Socket_3"]*scale
