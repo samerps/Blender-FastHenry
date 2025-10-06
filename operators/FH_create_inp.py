@@ -63,7 +63,7 @@ def create_inp(self, context):
         # attributes "plane_point1" and "plane_unique_id_point1" are located in the last indices 3 and 4 indices of the BFH_curve modifier
         # attributes "plane_point2" and "plane_unique_id_point2" are located in the last 1 and 2 indices of the BFH_curve modifier        
         
-        if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
+        if not ((obj.modifiers["BFH_curve"]["Socket_13"]) == 0 and obj.modifiers["BFH_curve"]["Socket_7"] == False):
             depsgraph = bpy.context.evaluated_depsgraph_get()
             eval_obj = obj.evaluated_get(depsgraph)
             eval_mesh = eval_obj.to_mesh()
@@ -224,24 +224,21 @@ def create_inp(self, context):
 
                     textfile.write('E{} N{} N{} w={:.8f} h={:.8f} wx={:.4F} wy={:.4F} wz={:.4F} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h, rotated_binormal.x, rotated_binormal.y, rotated_binormal.z))
                     element_index +=1
-            
-                ## Check if connected to plane 
-                ###PORT
-                if (obj.modifiers["BFH_curve"]["Socket_13"]) != 2:
-                    if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
-                        textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
 
-                        #check if plane interconect
-                        if (obj.modifiers["BFH_curve"]["Socket_11"]):
-                            textfile.write(".equiv N{} nout{} \n" .format(last_node_index, obj_idx))
-                        else:
-                            textfile.write('* PORTS \n')
-                            textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
-                    else:
-                        # Get the evaluated object
-                        textfile.write('* PORTS \n')
-                        textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
+            # if curve type is BFH curve
+            if (obj.modifiers["BFH_curve"]["Socket_13"]) == 0:
+                #check if connected to plane
+                if (obj.modifiers["BFH_curve"]["Socket_7"]):
+                    textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
+                
+                textfile.write('* PORTS \n')
+                textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) )
 
+            # if curve type is plane interconnect curve
+            if (obj.modifiers["BFH_curve"]["Socket_13"]) == 1:
+                textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
+                textfile.write(".equiv N{} nout{} \n" .format(last_node_index, obj_idx))
+                                
             # if curve type is port curve
             if (obj.modifiers["BFH_curve"]["Socket_13"]) == 2:
                 textfile.write('* PORTS \n')
@@ -330,7 +327,6 @@ class BFH_OP_create_inp(bpy.types.Operator):
             #move plane interconnect curves to a new collection 
             #first create collection, if not already created
             collections = bpy.data.collections
-            # curve_col = collections['curves']
             col_names = []
             for col in collections:
                 col_names.append(col.name)
@@ -341,7 +337,7 @@ class BFH_OP_create_inp(bpy.types.Operator):
                 inter_curve_col = bpy.data.collections['inter_curves']
 
             for obj in self.FastHenry_col.objects:
-                if (obj.modifiers["BFH_curve"]["Socket_11"]):
+                if (obj.modifiers["BFH_curve"]["Socket_13"]) == 1:
                     obj.select_set(True)
                     self.FastHenry_col.objects.unlink(obj)
                     inter_curve_col.objects.link(obj)
