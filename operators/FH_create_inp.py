@@ -63,7 +63,7 @@ def create_inp(self, context):
         # attributes "plane_point1" and "plane_unique_id_point1" are located in the last indices 3 and 4 indices of the BFH_curve modifier
         # attributes "plane_point2" and "plane_unique_id_point2" are located in the last 1 and 2 indices of the BFH_curve modifier        
         
-        if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
+        if not ((obj.modifiers["BFH_curve"]["Socket_13"]) == 0 and obj.modifiers["BFH_curve"]["Socket_7"] == False):
             depsgraph = bpy.context.evaluated_depsgraph_get()
             eval_obj = obj.evaluated_get(depsgraph)
             eval_mesh = eval_obj.to_mesh()
@@ -163,79 +163,86 @@ def create_inp(self, context):
 
             first_node_index = node_index
             last_node_index = node_index + len(vertex_co_global)-1
-            ###NODES
-            textfile.write('* NODES \n')
-            for co in vertex_co_global:
-                textfile.write('N{} x={:.8f} y={:.8f} z={:.8f} \n' .format(node_index, co.x, co.y, co.z))
-                node_index +=1
-            
-            ###ELEMENTS
-            textfile.write('* SEGMENTS \n')
 
-            # this implements minimum twist method to capture the tangent, normal and binormal of the curve, the binormal is used to define segment orientation
-            # code from ChatGPT, not sure how the method works.
-            # I found if I use the global coordinates, the normal and binormal vectors give wrong orientation, so using local coordinates first and then applying object global tranform when writing to file
-            points = []
-            for vertex in object_vertices:
-                points.append((vertex.co) * scale )# + random_unit_vector(size=3)*1e-5)
+            # dont write nodes if curve type is port curve
+            if (obj.modifiers["BFH_curve"]["Socket_13"]) != 2:
+                
+                ###NODES
+                textfile.write('* NODES \n')
+                for co in vertex_co_global:
+                    textfile.write('N{} x={:.8f} y={:.8f} z={:.8f} \n' .format(node_index, co.x, co.y, co.z))
+                    node_index +=1
+                
+                ###ELEMENTS
+                textfile.write('* SEGMENTS \n')
 
-            frames = []
-            rotation_matrix = obj.rotation_euler.to_matrix().to_3x3()
+                # this implements minimum twist method to capture the tangent, normal and binormal of the curve, the binormal is used to define segment orientation
+                # code from ChatGPT, not sure how the method works.
+                # I found if I use the global coordinates, the normal and binormal vectors give wrong orientation, so using local coordinates first and then applying object global tranform when writing to file
+                points = []
+                for vertex in object_vertices:
+                    points.append((vertex.co) * scale )# + random_unit_vector(size=3)*1e-5)
 
-            for i in range(len(points) - 1):
-                p0 = points[i]
-                p1 = points[i + 1]
-                tangent = (p1 - p0).normalized()
+                frames = []
+                rotation_matrix = obj.rotation_euler.to_matrix().to_3x3()
 
-                if bpy.data.node_groups["BFH_curve"].nodes["Set Curve Normal"].mode == "Z_UP":
-                    # Always project global Z onto the plane perpendicular to tangent
-                    z_up = mathutils.Vector((0, 0, 1))
-                    if abs(tangent.dot(z_up)) > 0.99:
-                        z_up = mathutils.Vector((0, 1, 0))
-                    normal = (z_up - tangent * tangent.dot(z_up)).normalized()
-                else: #minimum twisr
-                    if i == 0:
-                        # Choose an up vector not parallel to the tangent
-                        up = mathutils.Vector((0, 0, 1))
-                        if abs(tangent.dot(up)) > 0.99:
-                            up = mathutils.Vector((0, 1, 0))
-                        # Project up onto plane ⟂ tangent
-                        projected = up - tangent * up.dot(tangent)
-                        normal = projected.normalized()
-                    else:
-                        prev_tangent, prev_normal, _ = frames[-1]
-                        axis = prev_tangent.cross(tangent)
-                        if axis.length < 1e-6:
-                            normal = prev_normal
+                for i in range(len(points) - 1):
+                    p0 = points[i]
+                    p1 = points[i + 1]
+                    tangent = (p1 - p0).normalized()
+
+                    if bpy.data.node_groups["BFH_curve"].nodes["Set Curve Normal"].mode == "Z_UP":
+                        # Always project global Z onto the plane perpendicular to tangent
+                        z_up = mathutils.Vector((0, 0, 1))
+                        if abs(tangent.dot(z_up)) > 0.99:
+                            z_up = mathutils.Vector((0, 1, 0))
+                        normal = (z_up - tangent * tangent.dot(z_up)).normalized()
+                    else: #minimum twisr
+                        if i == 0:
+                            # Choose an up vector not parallel to the tangent
+                            up = mathutils.Vector((0, 0, 1))
+                            if abs(tangent.dot(up)) > 0.99:
+                                up = mathutils.Vector((0, 1, 0))
+                            # Project up onto plane ⟂ tangent
+                            projected = up - tangent * up.dot(tangent)
+                            normal = projected.normalized()
                         else:
-                            angle = prev_tangent.angle(tangent)
-                            rot = mathutils.Matrix.Rotation(angle, 3, axis)
-                            normal = (rot @ prev_normal).normalized()
+                            prev_tangent, prev_normal, _ = frames[-1]
+                            axis = prev_tangent.cross(tangent)
+                            if axis.length < 1e-6:
+                                normal = prev_normal
+                            else:
+                                angle = prev_tangent.angle(tangent)
+                                rot = mathutils.Matrix.Rotation(angle, 3, axis)
+                                normal = (rot @ prev_normal).normalized()
 
-                binormal = tangent.cross(normal).normalized()
-                frames.append((tangent, normal, binormal))
+                    binormal = tangent.cross(normal).normalized()
+                    frames.append((tangent, normal, binormal))
 
-                rotated_binormal = rotation_matrix @ binormal
+                    rotated_binormal = rotation_matrix @ binormal
 
 
-                textfile.write('E{} N{} N{} w={:.8f} h={:.8f} wx={:.4F} wy={:.4F} wz={:.4F} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h, rotated_binormal.x, rotated_binormal.y, rotated_binormal.z))
-                element_index +=1
-           
-            ## Check if connected to plane 
-            ###PORT
-            if (obj.modifiers["BFH_curve"]["Socket_7"]) and (obj.modifiers["BFH_curve"]["Socket_10"] is not None):
-                textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
+                    textfile.write('E{} N{} N{} w={:.8f} h={:.8f} wx={:.4F} wy={:.4F} wz={:.4F} \n' .format(element_index, first_node_index+i, first_node_index+i+1, w, h, rotated_binormal.x, rotated_binormal.y, rotated_binormal.z))
+                    element_index +=1
 
-                #check if plane interconect
-                if (obj.modifiers["BFH_curve"]["Socket_11"]):
-                    textfile.write(".equiv N{} nout{} \n" .format(last_node_index, obj_idx))
-                else:
-                    textfile.write('* PORTS \n')
-                    textfile.write('.external N{} nout{} \n' .format(last_node_index, obj_idx))
-            else:
-                # Get the evaluated object
+            # if curve type is BFH curve
+            if (obj.modifiers["BFH_curve"]["Socket_13"]) == 0:
+                #check if connected to plane
+                if (obj.modifiers["BFH_curve"]["Socket_7"]):
+                    textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
+                
                 textfile.write('* PORTS \n')
-                textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) ) 
+                textfile.write('.external N{} N{} \n' .format(first_node_index, last_node_index) )
+
+            # if curve type is plane interconnect curve
+            if (obj.modifiers["BFH_curve"]["Socket_13"]) == 1:
+                textfile.write(".equiv nin{} N{} \n" .format(obj_idx, first_node_index))
+                textfile.write(".equiv N{} nout{} \n" .format(last_node_index, obj_idx))
+                                
+            # if curve type is port curve
+            if (obj.modifiers["BFH_curve"]["Socket_13"]) == 2:
+                textfile.write('* PORTS \n')
+                textfile.write('.external nin{} nout{} \n' .format(obj_idx, obj_idx))
 
             obj.to_mesh_clear()
 
@@ -320,7 +327,6 @@ class BFH_OP_create_inp(bpy.types.Operator):
             #move plane interconnect curves to a new collection 
             #first create collection, if not already created
             collections = bpy.data.collections
-            # curve_col = collections['curves']
             col_names = []
             for col in collections:
                 col_names.append(col.name)
@@ -331,7 +337,7 @@ class BFH_OP_create_inp(bpy.types.Operator):
                 inter_curve_col = bpy.data.collections['inter_curves']
 
             for obj in self.FastHenry_col.objects:
-                if (obj.modifiers["BFH_curve"]["Socket_11"]):
+                if (obj.modifiers["BFH_curve"]["Socket_13"]) == 1:
                     obj.select_set(True)
                     self.FastHenry_col.objects.unlink(obj)
                     inter_curve_col.objects.link(obj)
