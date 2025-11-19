@@ -191,7 +191,7 @@ def create_inp(self, context):
                     p1 = points[i + 1]
                     tangent = (p1 - p0).normalized()
 
-                    if bpy.data.node_groups["BFH_curve"].nodes["Set Curve Normal"].mode == "Z_UP":
+                    if bpy.data.node_groups["BFH_curve"].nodes["Set Curve Normal"].inputs[2].default_value == "Z_UP":
                         # Always project global Z onto the plane perpendicular to tangent
                         z_up = mathutils.Vector((0, 0, 1))
                         if abs(tangent.dot(z_up)) > 0.99:
